@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'manageuser.dart'; // Asegúrate de importar tu pantalla de gestión
+import 'homescreen.dart'; // Importa la nueva pantalla principal
 
 class HomeScreen extends StatelessWidget {
   final String name;
@@ -36,16 +37,16 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 16),
             const Text('Bienvenido/a a la aplicación'),
             const SizedBox(height: 32),
-            // Botón principal para gestionar BD
+            // Botón principal para ir a la nueva pantalla de inicio
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const DatabaseManagerScreen()),
+                  MaterialPageRoute(builder: (context) => MainScreen(userName: name)),
                 );
               },
-              icon: const Icon(Icons.storage),
-              label: const Text('Gestionar Base de Datos'),
+              icon: const Icon(Icons.home),
+              label: const Text('Ir a pantalla de inicio'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 shape: RoundedRectangleBorder(
