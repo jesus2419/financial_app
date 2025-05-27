@@ -2,10 +2,16 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../model/usuario.dart';
+import '../model/account.dart';
+import '../model/category.dart';
+import '../model/transaction.dart' as tx;
+import '../model/transfer.dart';
+import '../model/mandatory_payment.dart';
+import '../model/mandatory_payment_log.dart';
 
 class DatabaseHandler {
   static const _databaseName = "DB_super";
-  static const _databaseVersion = 1;
+  static const _databaseVersion = 2;
   static const tableName = "Users2";
 
   // Columnas
@@ -37,6 +43,7 @@ class DatabaseHandler {
   }
 
   Future _onCreate(Database db, int version) async {
+    // Tabla de usuarios
     await db.execute('''
       CREATE TABLE $tableName (
         $colId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,6 +52,86 @@ class DatabaseHandler {
         $colApellidoM TEXT NOT NULL,
         $colEmail TEXT UNIQUE NOT NULL,
         $colPass TEXT NOT NULL
+      )
+    ''');
+
+    // Tabla accounts
+    await db.execute('''
+      CREATE TABLE accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL CHECK(type IN ('cash', 'debit', 'credit')),
+        bank_name TEXT,
+        credit_limit REAL,
+        cut_off_day INTEGER,
+        description TEXT
+      )
+    ''');
+
+    // Tabla categories
+    await db.execute('''
+      CREATE TABLE categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        type TEXT NOT NULL CHECK(type IN ('income', 'expense')),
+        icon TEXT,
+        color TEXT
+      )
+    ''');
+
+    // Tabla transactions
+    await db.execute('''
+      CREATE TABLE transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        account_id INTEGER NOT NULL,
+        amount REAL NOT NULL,
+        category_id INTEGER,
+        description TEXT,
+        date TEXT NOT NULL,
+        FOREIGN KEY (account_id) REFERENCES accounts(id),
+        FOREIGN KEY (category_id) REFERENCES categories(id)
+      )
+    ''');
+
+    // Tabla transfers
+    await db.execute('''
+      CREATE TABLE transfers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_account_id INTEGER NOT NULL,
+        to_account_id INTEGER NOT NULL,
+        amount REAL NOT NULL CHECK(amount > 0),
+        date TEXT NOT NULL,
+        description TEXT,
+        FOREIGN KEY (from_account_id) REFERENCES accounts(id),
+        FOREIGN KEY (to_account_id) REFERENCES accounts(id)
+      )
+    ''');
+
+    // Tabla mandatory_payments
+    await db.execute('''
+      CREATE TABLE mandatory_payments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        account_id INTEGER,
+        name TEXT NOT NULL,
+        amount REAL NOT NULL CHECK(amount > 0),
+        due_date TEXT NOT NULL,
+        frequency TEXT CHECK(frequency IN ('once', 'weekly', 'biweekly', 'monthly')) DEFAULT 'once',
+        category_id INTEGER,
+        notes TEXT,
+        FOREIGN KEY (account_id) REFERENCES accounts(id),
+        FOREIGN KEY (category_id) REFERENCES categories(id)
+      )
+    ''');
+
+    // Tabla mandatory_payment_logs
+    await db.execute('''
+      CREATE TABLE mandatory_payment_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        mandatory_payment_id INTEGER NOT NULL,
+        transaction_id INTEGER,
+        paid_amount REAL NOT NULL,
+        paid_date TEXT NOT NULL,
+        FOREIGN KEY (mandatory_payment_id) REFERENCES mandatory_payments(id),
+        FOREIGN KEY (transaction_id) REFERENCES transactions(id)
       )
     ''');
   }
@@ -122,5 +209,99 @@ class DatabaseHandler {
       whereArgs: [email],
     );
     return maps.isNotEmpty;
+  }
+
+  // =========================
+  // Métodos para Accounts
+  // =========================
+  Future<int> addAccount(Account account) async {
+    Database db = await instance.database;
+    return await db.insert('accounts', account.toMap());
+  }
+
+  Future<List<Account>> getAllAccounts() async {
+    Database db = await instance.database;
+    final maps = await db.query('accounts');
+    return maps.map((e) => Account.fromMap(e)).toList();
+  }
+
+  Future<int> updateAccount(Account account) async {
+    Database db = await instance.database;
+    return await db.update('accounts', account.toMap(), where: 'id = ?', whereArgs: [account.id]);
+  }
+
+  Future<int> deleteAccount(int id) async {
+    Database db = await instance.database;
+    return await db.delete('accounts', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // =========================
+  // Métodos para Categories
+  // =========================
+  Future<int> addCategory(Category category) async {
+    Database db = await instance.database;
+    return await db.insert('categories', category.toMap());
+  }
+
+  Future<List<Category>> getAllCategories() async {
+    Database db = await instance.database;
+    final maps = await db.query('categories');
+    return maps.map((e) => Category.fromMap(e)).toList();
+  }
+
+  // =========================
+  // Métodos para Transactions
+  // =========================
+  Future<int> addTransaction(tx.Transaction transaction) async {
+    Database db = await instance.database;
+    return await db.insert('transactions', transaction.toMap());
+  }
+
+  Future<List<tx.Transaction>> getAllTransactions() async {
+    Database db = await instance.database;
+    final maps = await db.query('transactions');
+    return maps.map((e) => tx.Transaction.fromMap(e)).toList();
+  }
+
+  // =========================
+  // Métodos para Transfers
+  // =========================
+  Future<int> addTransfer(Transfer transfer) async {
+    Database db = await instance.database;
+    return await db.insert('transfers', transfer.toMap());
+  }
+
+  Future<List<Transfer>> getAllTransfers() async {
+    Database db = await instance.database;
+    final maps = await db.query('transfers');
+    return maps.map((e) => Transfer.fromMap(e)).toList();
+  }
+
+  // =========================
+  // Métodos para MandatoryPayments
+  // =========================
+  Future<int> addMandatoryPayment(MandatoryPayment mp) async {
+    Database db = await instance.database;
+    return await db.insert('mandatory_payments', mp.toMap());
+  }
+
+  Future<List<MandatoryPayment>> getAllMandatoryPayments() async {
+    Database db = await instance.database;
+    final maps = await db.query('mandatory_payments');
+    return maps.map((e) => MandatoryPayment.fromMap(e)).toList();
+  }
+
+  // =========================
+  // Métodos para MandatoryPaymentLogs
+  // =========================
+  Future<int> addMandatoryPaymentLog(MandatoryPaymentLog mpl) async {
+    Database db = await instance.database;
+    return await db.insert('mandatory_payment_logs', mpl.toMap());
+  }
+
+  Future<List<MandatoryPaymentLog>> getAllMandatoryPaymentLogs() async {
+    Database db = await instance.database;
+    final maps = await db.query('mandatory_payment_logs');
+    return maps.map((e) => MandatoryPaymentLog.fromMap(e)).toList();
   }
 }
