@@ -263,6 +263,25 @@ class DatabaseHandler {
     return maps.map((e) => tx.Transaction.fromMap(e)).toList();
   }
 
+  Future<int> updateTransaction(tx.Transaction transaction) async {
+    Database db = await instance.database;
+    return await db.update(
+      'transactions',
+      transaction.toMap(),
+      where: 'id = ?',
+      whereArgs: [transaction.id],
+    );
+  }
+
+  Future<int> deleteTransaction(int id) async {
+    Database db = await instance.database;
+    return await db.delete(
+      'transactions',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   // =========================
   // Métodos para Transfers
   // =========================

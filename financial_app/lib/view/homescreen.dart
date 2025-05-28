@@ -6,6 +6,7 @@ import 'transactions_section.dart';
 import 'goals_section.dart';
 import 'reports_section.dart';
 import 'accounts_section.dart'; // Nueva importación
+import '../database/database_handler.dart'; // Asegúrate de que la ruta sea correcta
 
 class MainScreen extends StatefulWidget {
   final String userName;
@@ -46,6 +47,8 @@ class _MainScreenState extends State<MainScreen> {
         _localeReady = true;
       });
     });
+    // Precarga las cuentas para las transacciones
+    DatabaseHandler.instance.getAllAccounts();
   }
 
   @override
@@ -78,7 +81,7 @@ class _MainScreenState extends State<MainScreen> {
       drawer: _buildDrawer(context),
       body: _appSections[_selectedIndex],
       bottomNavigationBar: _buildBottomNavigationBar(),
-      floatingActionButton: _selectedIndex == 1 ? _buildAddTransactionButton() : null,
+      //floatingActionButton: _selectedIndex == 1 ? _buildAddTransactionButton() : null,
     );
   }
 
