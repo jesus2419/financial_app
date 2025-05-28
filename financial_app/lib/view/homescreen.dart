@@ -5,8 +5,8 @@ import 'dashboard_section.dart';
 import 'transactions_section.dart';
 import 'goals_section.dart';
 import 'reports_section.dart';
-import 'accounts_section.dart'; // Nueva importación
-import '../database/database_handler.dart'; // Asegúrate de que la ruta sea correcta
+import 'accounts_section.dart';
+import '../database/database_handler.dart';
 
 class MainScreen extends StatefulWidget {
   final String userName;
@@ -22,15 +22,14 @@ class _MainScreenState extends State<MainScreen> {
   final NumberFormat _currencyFormat = NumberFormat.currency(symbol: '\$');
   bool _localeReady = false;
 
-  // Datos de ejemplo (deberías reemplazarlos con tus modelos reales)
   final double _totalBalance = 12500.50;
 
-  static const List<Widget> _appSections = [
-    DashboardSection(),
-    TransactionsSection(),
-    GoalsSection(),
-    AccountsSection(), // Nueva sección
-    ReportsSection(),
+  static final List<Widget> _appSections = [
+    const DashboardSection(),
+    const TransactionsSection(),
+    const GoalsSection(),
+    const AccountsSection(),
+    const ReportsSection(),
   ];
 
   void _onItemTapped(int index) {
@@ -47,8 +46,34 @@ class _MainScreenState extends State<MainScreen> {
         _localeReady = true;
       });
     });
-    // Precarga las cuentas para las transacciones
     DatabaseHandler.instance.getAllAccounts();
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    // AppBar dinámico según la sección seleccionada
+    if (_selectedIndex == 1) {
+      // Transacciones
+      return AppBar(toolbarHeight: 0, elevation: 0, backgroundColor: Colors.transparent); // AppBar vacío para cumplir con el tipo
+    }
+    // AppBar por defecto
+    return AppBar(
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Hola, ${widget.userName}'),
+          Text(
+            DateFormat('EEEE, d MMMM', 'es').format(_currentDate),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+          ),
+        ],
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.notifications),
+          onPressed: () {},
+        ),
+      ],
+    );
   }
 
   @override
@@ -60,24 +85,7 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Hola, ${widget.userName}'),
-            Text(
-              DateFormat('EEEE, d MMMM', 'es').format(_currentDate),
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {},
-          ),
-        ],
-      ),
+      appBar: _selectedIndex == 1 ? null : _buildAppBar(),
       drawer: _buildDrawer(context),
       body: _appSections[_selectedIndex],
       bottomNavigationBar: _buildBottomNavigationBar(),

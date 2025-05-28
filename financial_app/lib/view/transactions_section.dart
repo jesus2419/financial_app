@@ -248,6 +248,13 @@ class _TransactionsSectionState extends State<TransactionsSection> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+            tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+          ),
+        ),
         title: const Text('Transacciones'),
         actions: [
           IconButton(
@@ -266,6 +273,9 @@ class _TransactionsSectionState extends State<TransactionsSection> {
             onPressed: _refreshData,
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: Container(), // El drawer real lo maneja el Scaffold principal
       ),
       body: Builder(
         builder: (context) {

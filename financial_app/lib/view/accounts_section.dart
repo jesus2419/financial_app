@@ -201,6 +201,26 @@ class _AccountsSectionState extends State<AccountsSection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+            tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+          ),
+        ),
+        title: const Text('Cuentas'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            tooltip: 'Agregar cuenta',
+            onPressed: () => _showAccountDialog(),
+          ),
+        ],
+      ),
+      drawer: Drawer(
+        child: Container(), // El drawer real lo maneja el Scaffold principal
+      ),
       body: FutureBuilder<List<Account>>(
         future: _accountsFuture,
         builder: (context, snapshot) {
@@ -233,16 +253,12 @@ class _AccountsSectionState extends State<AccountsSection> {
                 ),
                 title: Text(account.description ?? 'Sin descripción'),
                 subtitle: subtitle.isNotEmpty ? Text(subtitle) : null,
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () => _showAccountDialog(account: account),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => showDialog(
+                trailing: PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'edit') {
+                      _showAccountDialog(account: account);
+                    } else if (value == 'delete') {
+                      showDialog(
                         context: context,
                         builder: (ctx) => AlertDialog(
                           title: const Text('Eliminar cuenta'),
@@ -261,20 +277,18 @@ class _AccountsSectionState extends State<AccountsSection> {
                             ),
                           ],
                         ),
-                      ),
-                    ),
+                      );
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(value: 'edit', child: Text('Editar')),
+                    const PopupMenuItem(value: 'delete', child: Text('Eliminar')),
                   ],
                 ),
               );
             },
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAccountDialog(),
-        child: const Icon(Icons.add),
-        backgroundColor: Colors.indigo,
-        tooltip: 'Agregar cuenta',
       ),
     );
   }
