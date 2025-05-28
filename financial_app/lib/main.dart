@@ -142,9 +142,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                               if (value == null || value.isEmpty) {
                                 return 'Por favor ingresa tu nombre';
                               }
-                              if (value.length < 3) {
-                                return 'El nombre debe tener al menos 3 caracteres';
-                              }
+            
                               return null;
                             },
                             textCapitalization: TextCapitalization.words,

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'dashboard_section.dart';
+import 'transactions_section.dart';
+import 'goals_section.dart';
+import 'reports_section.dart';
+import 'accounts_section.dart'; // Nueva importación
 
 class MainScreen extends StatefulWidget {
   final String userName;
@@ -12,22 +17,18 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  DateTime _currentDate = DateTime.now();
+  final DateTime _currentDate = DateTime.now();
   final NumberFormat _currencyFormat = NumberFormat.currency(symbol: '\$');
   bool _localeReady = false;
 
   // Datos de ejemplo (deberías reemplazarlos con tus modelos reales)
   final double _totalBalance = 12500.50;
-  final Map<String, double> _accountBalances = {
-    'Efectivo': 3500.00,
-    'Banco ABC': 7000.50,
-    'Tarjeta Crédito': -2000.00,
-  };
 
   static const List<Widget> _appSections = [
     DashboardSection(),
     TransactionsSection(),
     GoalsSection(),
+    AccountsSection(), // Nueva sección
     ReportsSection(),
   ];
 
@@ -165,6 +166,10 @@ class _MainScreenState extends State<MainScreen> {
           label: 'Metas',
         ),
         BottomNavigationBarItem(
+          icon: Icon(Icons.account_balance_wallet), // Icono para cuentas
+          label: 'Cuentas',
+        ),
+        BottomNavigationBarItem(
           icon: Icon(Icons.bar_chart),
           label: 'Reportes',
         ),
@@ -180,41 +185,5 @@ class _MainScreenState extends State<MainScreen> {
         // Navegar a pantalla de agregar transacción
       },
     );
-  }
-}
-
-// Secciones de la aplicación (deberías mover cada una a su propio archivo)
-class DashboardSection extends StatelessWidget {
-  const DashboardSection({super.key});  // Añade const y key
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Vista de Resumen'));
-  }
-}
-
-class TransactionsSection extends StatelessWidget {
-    const TransactionsSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Vista de Transacciones'));
-  }
-}
-
-class GoalsSection extends StatelessWidget {
-    const GoalsSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Vista de Metas de Ahorro'));
-  }
-}
-
-class ReportsSection extends StatelessWidget {
-    const ReportsSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Vista de Reportes'));
   }
 }
