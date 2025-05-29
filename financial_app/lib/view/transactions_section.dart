@@ -16,8 +16,8 @@ class _TransactionsSectionState extends State<TransactionsSection> {
   late Future<List<tx.Transaction>> _transactionsFuture;
   late Future<List<Category>> _categoriesFuture;
   late Future<List<Account>> _accountsFuture;
-  List<Category> _categories = [];
-  List<Account> _accounts = [];
+  final List<Category> _categories = [];
+  final List<Account> _accounts = [];
 
   @override
   void initState() {
@@ -54,7 +54,7 @@ class _TransactionsSectionState extends State<TransactionsSection> {
   }
 
   Future<void> _showCategoryDialog() async {
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     String? name;
     String type = 'expense';
 
@@ -63,13 +63,14 @@ class _TransactionsSectionState extends State<TransactionsSection> {
       builder: (context) => AlertDialog(
         title: const Text('Agregar Categoría'),
         content: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Nombre'),
-                validator: (val) => val == null || val.isEmpty ? 'Campo requerido' : null,
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Campo requerido' : null,
                 onChanged: (val) => name = val,
               ),
               DropdownButtonFormField<String>(
@@ -85,11 +86,16 @@ class _TransactionsSectionState extends State<TransactionsSection> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
           ElevatedButton(
             onPressed: () async {
-              if (_formKey.currentState!.validate()) {
-                await DatabaseHandler.instance.addCategory(Category(name: name!, type: type));
+              if (formKey.currentState!.validate()) {
+                await DatabaseHandler.instance.addCategory(
+                  Category(name: name!, type: type),
+                );
                 Navigator.pop(context);
                 _refreshData();
               }
@@ -102,7 +108,7 @@ class _TransactionsSectionState extends State<TransactionsSection> {
   }
 
   Future<void> _showTransactionDialog({tx.Transaction? transaction}) async {
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     int? accountId = transaction?.accountId;
     double? amount = transaction?.amount;
     int? categoryId = transaction?.categoryId;
@@ -117,9 +123,11 @@ class _TransactionsSectionState extends State<TransactionsSection> {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(transaction == null ? 'Agregar Transacción' : 'Editar Transacción'),
+        title: Text(
+          transaction == null ? 'Agregar Transacción' : 'Editar Transacción',
+        ),
         content: Form(
-          key: _formKey,
+          key: formKey,
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -127,14 +135,17 @@ class _TransactionsSectionState extends State<TransactionsSection> {
                 DropdownButtonFormField<int>(
                   value: accountId,
                   items: accounts
-                      .map((acc) => DropdownMenuItem(
-                            value: acc.id,
-                            child: Text(acc.description ?? 'Cuenta ${acc.id}'),
-                          ))
+                      .map(
+                        (acc) => DropdownMenuItem(
+                          value: acc.id,
+                          child: Text(acc.description ?? 'Cuenta ${acc.id}'),
+                        ),
+                      )
                       .toList(),
                   onChanged: (val) => accountId = val,
                   decoration: const InputDecoration(labelText: 'Cuenta'),
-                  validator: (val) => val == null ? 'Seleccione una cuenta' : null,
+                  validator: (val) =>
+                      val == null ? 'Seleccione una cuenta' : null,
                 ),
                 TextFormField(
                   initialValue: amount?.toString(),
@@ -142,7 +153,8 @@ class _TransactionsSectionState extends State<TransactionsSection> {
                   keyboardType: TextInputType.number,
                   validator: (val) {
                     if (val == null || val.isEmpty) return 'Campo requerido';
-                    if (double.tryParse(val) == null) return 'Ingrese un número válido';
+                    if (double.tryParse(val) == null)
+                      return 'Ingrese un número válido';
                     return null;
                   },
                   onChanged: (val) => amount = double.tryParse(val),
@@ -150,14 +162,17 @@ class _TransactionsSectionState extends State<TransactionsSection> {
                 DropdownButtonFormField<int>(
                   value: categoryId,
                   items: [
-                    ...categories.map((cat) => DropdownMenuItem(
-                          value: cat.id,
-                          child: Text(cat.name),
-                        ))
+                    ...categories.map(
+                      (cat) => DropdownMenuItem(
+                        value: cat.id,
+                        child: Text(cat.name),
+                      ),
+                    ),
                   ],
                   onChanged: (val) => categoryId = val,
                   decoration: const InputDecoration(labelText: 'Categoría'),
-                  validator: (val) => val == null ? 'Seleccione una categoría' : null,
+                  validator: (val) =>
+                      val == null ? 'Seleccione una categoría' : null,
                 ),
                 TextFormField(
                   initialValue: description,
@@ -170,14 +185,22 @@ class _TransactionsSectionState extends State<TransactionsSection> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
           ElevatedButton(
             onPressed: () async {
-              if (_formKey.currentState!.validate()) {
+              if (formKey.currentState!.validate()) {
                 // Lógica para signo del monto según categoría
-                final selectedCat = categories.firstWhere((c) => c.id == categoryId, orElse: () => Category(name: '', type: 'expense'));
+                final selectedCat = categories.firstWhere(
+                  (c) => c.id == categoryId,
+                  orElse: () => Category(name: '', type: 'expense'),
+                );
                 double finalAmount = amount ?? 0;
-                if (selectedCat.type == 'income' || selectedCat.name.toLowerCase() == 'nómina' || selectedCat.name.toLowerCase() == 'ingreso') {
+                if (selectedCat.type == 'income' ||
+                    selectedCat.name.toLowerCase() == 'nómina' ||
+                    selectedCat.name.toLowerCase() == 'ingreso') {
                   finalAmount = finalAmount.abs();
                 } else {
                   finalAmount = -finalAmount.abs();
@@ -194,14 +217,18 @@ class _TransactionsSectionState extends State<TransactionsSection> {
                 if (transaction == null) {
                   result = await DatabaseHandler.instance.addTransaction(newTx);
                 } else {
-                  result = await DatabaseHandler.instance.updateTransaction(newTx);
+                  result = await DatabaseHandler.instance.updateTransaction(
+                    newTx,
+                  );
                 }
                 if (result > 0) {
                   Navigator.pop(context);
                   _refreshData();
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Error al guardar la transacción')),
+                    const SnackBar(
+                      content: Text('Error al guardar la transacción'),
+                    ),
                   );
                 }
               }
@@ -286,10 +313,15 @@ class _TransactionsSectionState extends State<TransactionsSection> {
                 return const Center(child: CircularProgressIndicator());
               }
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No hay transacciones registradas.'));
+                return const Center(
+                  child: Text('No hay transacciones registradas.'),
+                );
               }
               final transactions = snapshot.data!;
-              double total = transactions.fold(0.0, (sum, t) => sum + (t.amount));
+              double total = transactions.fold(
+                0.0,
+                (sum, t) => sum + (t.amount),
+              );
               return FutureBuilder<List<Category>>(
                 future: _categoriesFuture,
                 builder: (context, catSnap) {
@@ -338,13 +370,21 @@ class _TransactionsSectionState extends State<TransactionsSection> {
                                     ),
                                     padding: const EdgeInsets.all(2),
                                     child: Icon(
-                                      isPositive ? Icons.arrow_upward : Icons.arrow_downward,
-                                      color: isPositive ? Colors.green : Colors.red,
+                                      isPositive
+                                          ? Icons.arrow_upward
+                                          : Icons.arrow_downward,
+                                      color: isPositive
+                                          ? Colors.green
+                                          : Colors.red,
                                     ),
                                   ),
                                   title: Row(
                                     children: [
-                                      Icon(accountIcon, color: borderColor, size: 20),
+                                      Icon(
+                                        accountIcon,
+                                        color: borderColor,
+                                        size: 20,
+                                      ),
                                       const SizedBox(width: 6),
                                       Text(account?.description ?? 'Cuenta'),
                                     ],
@@ -360,11 +400,16 @@ class _TransactionsSectionState extends State<TransactionsSection> {
                                         showDialog(
                                           context: context,
                                           builder: (ctx) => AlertDialog(
-                                            title: const Text('Eliminar transacción'),
-                                            content: const Text('¿Estás seguro de eliminar esta transacción?'),
+                                            title: const Text(
+                                              'Eliminar transacción',
+                                            ),
+                                            content: const Text(
+                                              '¿Estás seguro de eliminar esta transacción?',
+                                            ),
                                             actions: [
                                               TextButton(
-                                                onPressed: () => Navigator.pop(ctx),
+                                                onPressed: () =>
+                                                    Navigator.pop(ctx),
                                                 child: const Text('Cancelar'),
                                               ),
                                               ElevatedButton(
@@ -380,8 +425,14 @@ class _TransactionsSectionState extends State<TransactionsSection> {
                                       }
                                     },
                                     itemBuilder: (context) => [
-                                      const PopupMenuItem(value: 'edit', child: Text('Editar')),
-                                      const PopupMenuItem(value: 'delete', child: Text('Eliminar')),
+                                      const PopupMenuItem(
+                                        value: 'edit',
+                                        child: Text('Editar'),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'delete',
+                                        child: Text('Eliminar'),
+                                      ),
                                     ],
                                   ),
                                 );
@@ -395,7 +446,10 @@ class _TransactionsSectionState extends State<TransactionsSection> {
                               children: [
                                 Text(
                                   'Total: \$${total.toStringAsFixed(2)}',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
                                 ),
                               ],
                             ),

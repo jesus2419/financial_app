@@ -24,11 +24,16 @@ class _MainScreenState extends State<MainScreen> {
 
   final double _totalBalance = 12500.50;
 
-  static final List<Widget> _appSections = [
+  // 1. GlobalKey para acceder al estado de AccountsSection
+  final GlobalKey<AccountsSectionState> _accountsKey =
+      GlobalKey<AccountsSectionState>();
+
+  // 2. Usa el key al crear AccountsSection
+  late final List<Widget> _appSections = [
     const DashboardSection(),
     const TransactionsSection(),
     const GoalsSection(),
-    const AccountsSection(),
+    AccountsSection(key: _accountsKey),
     const ReportsSection(),
   ];
 
@@ -53,7 +58,19 @@ class _MainScreenState extends State<MainScreen> {
     // AppBar dinámico según la sección seleccionada
     if (_selectedIndex == 1) {
       // Transacciones
-      return AppBar(toolbarHeight: 0, elevation: 0, backgroundColor: Colors.transparent); // AppBar vacío para cumplir con el tipo
+      return AppBar(
+        toolbarHeight: 0,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ); // AppBar vacío para cumplir con el tipo
+    }
+    if (_selectedIndex == 3) {
+      // Cuentas
+      return AppBar(
+        toolbarHeight: 0,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ); // AppBar vacío, lo maneja internamente AccountsSection
     }
     // AppBar por defecto
     return AppBar(
@@ -68,10 +85,7 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications),
-          onPressed: () {},
-        ),
+        IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
       ],
     );
   }
@@ -79,9 +93,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     if (!_localeReady) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -104,7 +116,8 @@ class _MainScreenState extends State<MainScreen> {
                 colors: [Colors.indigo, Colors.blueAccent],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-              )),
+              ),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -116,7 +129,11 @@ class _MainScreenState extends State<MainScreen> {
                 const SizedBox(height: 12),
                 Text(
                   widget.userName,
-                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -164,26 +181,17 @@ class _MainScreenState extends State<MainScreen> {
       selectedItemColor: Colors.indigo,
       unselectedItemColor: Colors.grey,
       items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.dashboard),
-          label: 'Resumen',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Resumen'),
         BottomNavigationBarItem(
           icon: Icon(Icons.list_alt),
           label: 'Transacciones',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.savings),
-          label: 'Metas',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.savings), label: 'Metas'),
         BottomNavigationBarItem(
           icon: Icon(Icons.account_balance_wallet), // Icono para cuentas
           label: 'Cuentas',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.bar_chart),
-          label: 'Reportes',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Reportes'),
       ],
     );
   }

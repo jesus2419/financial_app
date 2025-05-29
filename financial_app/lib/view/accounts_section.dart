@@ -6,10 +6,10 @@ class AccountsSection extends StatefulWidget {
   const AccountsSection({super.key});
 
   @override
-  State<AccountsSection> createState() => _AccountsSectionState();
+  State<AccountsSection> createState() => AccountsSectionState();
 }
 
-class _AccountsSectionState extends State<AccountsSection> {
+class AccountsSectionState extends State<AccountsSection> {
   late Future<List<Account>> _accountsFuture;
 
   @override
@@ -25,7 +25,7 @@ class _AccountsSectionState extends State<AccountsSection> {
   }
 
   void _showAccountDialog({Account? account}) {
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     String type = account?.type ?? 'cash';
     String? bankName = account?.bankName;
     String? description = account?.description;
@@ -40,7 +40,7 @@ class _AccountsSectionState extends State<AccountsSection> {
             return AlertDialog(
               title: Text(account == null ? 'Agregar Cuenta' : 'Editar Cuenta'),
               content: Form(
-                key: _formKey,
+                key: formKey,
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -48,23 +48,35 @@ class _AccountsSectionState extends State<AccountsSection> {
                       DropdownButtonFormField<String>(
                         value: type,
                         items: const [
-                          DropdownMenuItem(value: 'cash', child: Text('Efectivo')),
-                          DropdownMenuItem(value: 'debit', child: Text('Débito')),
-                          DropdownMenuItem(value: 'credit', child: Text('Crédito')),
+                          DropdownMenuItem(
+                            value: 'cash',
+                            child: Text('Efectivo'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'debit',
+                            child: Text('Débito'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'credit',
+                            child: Text('Crédito'),
+                          ),
                         ],
                         onChanged: (val) {
                           setDialogState(() {
                             type = val!;
                           });
                         },
-                        decoration: const InputDecoration(labelText: 'Tipo de cuenta'),
+                        decoration: const InputDecoration(
+                          labelText: 'Tipo de cuenta',
+                        ),
                       ),
                       if (type == 'debit' || type == 'credit')
                         TextFormField(
                           initialValue: bankName,
                           decoration: const InputDecoration(labelText: 'Banco'),
                           validator: (val) {
-                            if ((type == 'debit' || type == 'credit') && (val == null || val.isEmpty)) {
+                            if ((type == 'debit' || type == 'credit') &&
+                                (val == null || val.isEmpty)) {
                               return 'El banco es obligatorio';
                             }
                             return null;
@@ -73,7 +85,9 @@ class _AccountsSectionState extends State<AccountsSection> {
                         ),
                       TextFormField(
                         initialValue: description,
-                        decoration: const InputDecoration(labelText: 'Descripción'),
+                        decoration: const InputDecoration(
+                          labelText: 'Descripción',
+                        ),
                         validator: (val) {
                           if (val == null || val.isEmpty) {
                             return 'La descripción es obligatoria';
@@ -85,13 +99,17 @@ class _AccountsSectionState extends State<AccountsSection> {
                       if (type == 'credit')
                         TextFormField(
                           initialValue: creditLimitStr,
-                          decoration: const InputDecoration(labelText: 'Límite de crédito'),
+                          decoration: const InputDecoration(
+                            labelText: 'Límite de crédito',
+                          ),
                           keyboardType: TextInputType.number,
                           validator: (val) {
-                            if (type == 'credit' && (val == null || val.isEmpty)) {
+                            if (type == 'credit' &&
+                                (val == null || val.isEmpty)) {
                               return 'El límite de crédito es obligatorio';
                             }
-                            if (type == 'credit' && double.tryParse(val!) == null) {
+                            if (type == 'credit' &&
+                                double.tryParse(val!) == null) {
                               return 'Ingrese un número válido';
                             }
                             return null;
@@ -101,13 +119,17 @@ class _AccountsSectionState extends State<AccountsSection> {
                       if (type == 'credit')
                         TextFormField(
                           initialValue: cutOffDayStr,
-                          decoration: const InputDecoration(labelText: 'Día de corte'),
+                          decoration: const InputDecoration(
+                            labelText: 'Día de corte',
+                          ),
                           keyboardType: TextInputType.number,
                           validator: (val) {
-                            if (type == 'credit' && (val == null || val.isEmpty)) {
+                            if (type == 'credit' &&
+                                (val == null || val.isEmpty)) {
                               return 'El día de corte es obligatorio';
                             }
-                            if (type == 'credit' && int.tryParse(val!) == null) {
+                            if (type == 'credit' &&
+                                int.tryParse(val!) == null) {
                               return 'Ingrese un número válido';
                             }
                             return null;
@@ -125,20 +147,23 @@ class _AccountsSectionState extends State<AccountsSection> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
+                    if (formKey.currentState!.validate()) {
                       final newAccount = Account(
                         id: account?.id,
                         type: type,
-                        bankName: (type == 'debit' || type == 'credit') ? bankName : null,
+                        bankName: (type == 'debit' || type == 'credit')
+                            ? bankName
+                            : null,
                         creditLimit: type == 'credit'
-                            ? (creditLimitStr != null && creditLimitStr!.isNotEmpty
-                                ? double.parse(creditLimitStr!)
-                                : null)
+                            ? (creditLimitStr != null &&
+                                      creditLimitStr!.isNotEmpty
+                                  ? double.parse(creditLimitStr!)
+                                  : null)
                             : null,
                         cutOffDay: type == 'credit'
                             ? (cutOffDayStr != null && cutOffDayStr!.isNotEmpty
-                                ? int.parse(cutOffDayStr!)
-                                : null)
+                                  ? int.parse(cutOffDayStr!)
+                                  : null)
                             : null,
                         description: description,
                       );
@@ -150,15 +175,22 @@ class _AccountsSectionState extends State<AccountsSection> {
                         result = 0;
                         try {
                           if (account == null) {
-                            result = await DatabaseHandler.instance.addAccount(newAccount);
+                            result = await DatabaseHandler.instance.addAccount(
+                              newAccount,
+                            );
                           } else {
-                            result = await DatabaseHandler.instance.updateAccount(newAccount);
+                            result = await DatabaseHandler.instance
+                                .updateAccount(newAccount);
                           }
                         } catch (e) {
                           // Si hay error de tabla inexistente, muestra mensaje claro
                           if (e.toString().contains('no such table')) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('La tabla de cuentas no existe. Reinicia la app o borra la base de datos para recrearla.')),
+                              const SnackBar(
+                                content: Text(
+                                  'La tabla de cuentas no existe. Reinicia la app o borra la base de datos para recrearla.',
+                                ),
+                              ),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -173,13 +205,15 @@ class _AccountsSectionState extends State<AccountsSection> {
                           _refreshAccounts();
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Error al guardar la cuenta')),
+                            const SnackBar(
+                              content: Text('Error al guardar la cuenta'),
+                            ),
                           );
                         }
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: $e')),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('Error: $e')));
                       }
                     }
                   },
@@ -237,7 +271,8 @@ class _AccountsSectionState extends State<AccountsSection> {
               final account = accounts[index];
               String subtitle = '';
               if (account.type == 'credit') {
-                subtitle = 'Banco: ${account.bankName ?? ''} | Límite: \$${account.creditLimit?.toStringAsFixed(2) ?? '-'}';
+                subtitle =
+                    'Banco: ${account.bankName ?? ''} | Límite: \$${account.creditLimit?.toStringAsFixed(2) ?? '-'}';
               } else if (account.type == 'debit') {
                 subtitle = 'Banco: ${account.bankName ?? ''}';
               }
@@ -248,8 +283,8 @@ class _AccountsSectionState extends State<AccountsSection> {
                   account.type == 'cash'
                       ? Icons.money
                       : account.type == 'debit'
-                          ? Icons.account_balance
-                          : Icons.credit_card,
+                      ? Icons.account_balance
+                      : Icons.credit_card,
                 ),
                 title: Text(account.description ?? 'Sin descripción'),
                 subtitle: subtitle.isNotEmpty ? Text(subtitle) : null,
@@ -262,7 +297,9 @@ class _AccountsSectionState extends State<AccountsSection> {
                         context: context,
                         builder: (ctx) => AlertDialog(
                           title: const Text('Eliminar cuenta'),
-                          content: const Text('¿Estás seguro de eliminar esta cuenta?'),
+                          content: const Text(
+                            '¿Estás seguro de eliminar esta cuenta?',
+                          ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(ctx),
@@ -282,7 +319,10 @@ class _AccountsSectionState extends State<AccountsSection> {
                   },
                   itemBuilder: (context) => [
                     const PopupMenuItem(value: 'edit', child: Text('Editar')),
-                    const PopupMenuItem(value: 'delete', child: Text('Eliminar')),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Eliminar'),
+                    ),
                   ],
                 ),
               );
