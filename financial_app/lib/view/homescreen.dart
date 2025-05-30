@@ -7,6 +7,7 @@ import 'goals_section.dart';
 import 'reports_section.dart';
 import 'accounts_section.dart';
 import '../database/database_handler.dart';
+import '../components/main_drawer.dart';
 
 class MainScreen extends StatefulWidget {
   final String userName;
@@ -98,78 +99,15 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       appBar: _selectedIndex == 1 ? null : _buildAppBar(),
-      drawer: _buildDrawer(context),
+      drawer: MainDrawer(
+        userName: widget.userName,
+        totalBalance: _currencyFormat.format(_totalBalance),
+        selectedIndex: _selectedIndex,
+        onSectionTap: _onItemTapped,
+      ),
       body: _appSections[_selectedIndex],
       bottomNavigationBar: _buildBottomNavigationBar(),
       //floatingActionButton: _selectedIndex == 1 ? _buildAddTransactionButton() : null,
-    );
-  }
-
-  Widget _buildDrawer(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.indigo, Colors.blueAccent],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const CircleAvatar(
-                  radius: 28,
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.person, size: 40, color: Colors.indigo),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  widget.userName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _currencyFormat.format(_totalBalance),
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ],
-            ),
-          ),
-          _buildDrawerItem(Icons.dashboard, 'Resumen', 0),
-          _buildDrawerItem(Icons.list_alt, 'Transacciones', 1),
-          _buildDrawerItem(Icons.savings, 'Metas de Ahorro', 2),
-          _buildDrawerItem(Icons.bar_chart, 'Reportes', 3),
-          const Divider(),
-          _buildDrawerItem(Icons.account_balance_wallet, 'Mis Cuentas', -1),
-          _buildDrawerItem(Icons.category, 'Categorías', -1),
-          _buildDrawerItem(Icons.payment, 'Pagos Obligatorios', -1),
-          const Divider(),
-          _buildDrawerItem(Icons.exit_to_app, 'Cerrar sesión', -1),
-        ],
-      ),
-    );
-  }
-
-  ListTile _buildDrawerItem(IconData icon, String title, int index) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      selected: _selectedIndex == index,
-      onTap: () {
-        Navigator.pop(context);
-        if (index >= 0) {
-          _onItemTapped(index);
-        }
-        // Aquí deberías manejar la navegación para los ítems con index negativo
-      },
     );
   }
 
@@ -193,16 +131,6 @@ class _MainScreenState extends State<MainScreen> {
         ),
         BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Reportes'),
       ],
-    );
-  }
-
-  Widget _buildAddTransactionButton() {
-    return FloatingActionButton(
-      backgroundColor: Colors.indigo,
-      child: const Icon(Icons.add, color: Colors.white),
-      onPressed: () {
-        // Navegar a pantalla de agregar transacción
-      },
     );
   }
 }
