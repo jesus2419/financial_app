@@ -273,40 +273,37 @@ class _TransactionsSectionState extends State<TransactionsSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+    return Column(
+      children: [
+        AppBar(
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+              tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+            ),
           ),
+          title: const Text('Transacciones'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.add),
+              tooltip: 'Agregar transacción',
+              onPressed: () => _showTransactionDialog(),
+            ),
+            IconButton(
+              icon: const Icon(Icons.category),
+              tooltip: 'Agregar Categoría',
+              onPressed: _showCategoryDialog,
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Refrescar',
+              onPressed: _refreshData,
+            ),
+          ],
         ),
-        title: const Text('Transacciones'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'Agregar transacción',
-            onPressed: () => _showTransactionDialog(),
-          ),
-          IconButton(
-            icon: const Icon(Icons.category),
-            tooltip: 'Agregar Categoría',
-            onPressed: _showCategoryDialog,
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Refrescar',
-            onPressed: _refreshData,
-          ),
-        ],
-      ),
-      drawer: Drawer(
-        child: Container(), // El drawer real lo maneja el Scaffold principal
-      ),
-      body: Builder(
-        builder: (context) {
-          return FutureBuilder<List<tx.Transaction>>(
+        Expanded(
+          child: FutureBuilder<List<tx.Transaction>>(
             future: _transactionsFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -461,9 +458,9 @@ class _TransactionsSectionState extends State<TransactionsSection> {
                 },
               );
             },
-          );
-        },
-      ),
+          ),
+        ),
+      ],
     );
   }
 }

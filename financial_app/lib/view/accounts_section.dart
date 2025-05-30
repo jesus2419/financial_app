@@ -234,102 +234,105 @@ class AccountsSectionState extends State<AccountsSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+    return Column(
+      children: [
+        AppBar(
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+              tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+            ),
           ),
+          title: const Text('Cuentas'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.add),
+              tooltip: 'Agregar cuenta',
+              onPressed: () => _showAccountDialog(),
+            ),
+          ],
         ),
-        title: const Text('Cuentas'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'Agregar cuenta',
-            onPressed: () => _showAccountDialog(),
-          ),
-        ],
-      ),
-      drawer: Drawer(
-        child: Container(), // El drawer real lo maneja el Scaffold principal
-      ),
-      body: FutureBuilder<List<Account>>(
-        future: _accountsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No hay cuentas registradas.'));
-          }
-          final accounts = snapshot.data!;
-          return ListView.builder(
-            itemCount: accounts.length,
-            itemBuilder: (context, index) {
-              final account = accounts[index];
-              String subtitle = '';
-              if (account.type == 'credit') {
-                subtitle =
-                    'Banco: ${account.bankName ?? ''} | Límite: \$${account.creditLimit?.toStringAsFixed(2) ?? '-'}';
-              } else if (account.type == 'debit') {
-                subtitle = 'Banco: ${account.bankName ?? ''}';
+        Expanded(
+          child: FutureBuilder<List<Account>>(
+            future: _accountsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
               }
-              // Para efectivo, subtitle queda vacío
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text('No hay cuentas registradas.'));
+              }
+              final accounts = snapshot.data!;
+              return ListView.builder(
+                itemCount: accounts.length,
+                itemBuilder: (context, index) {
+                  final account = accounts[index];
+                  String subtitle = '';
+                  if (account.type == 'credit') {
+                    subtitle =
+                        'Banco: ${account.bankName ?? ''} | Límite: \$${account.creditLimit?.toStringAsFixed(2) ?? '-'}';
+                  } else if (account.type == 'debit') {
+                    subtitle = 'Banco: ${account.bankName ?? ''}';
+                  }
 
-              return ListTile(
-                leading: Icon(
-                  account.type == 'cash'
-                      ? Icons.money
-                      : account.type == 'debit'
-                      ? Icons.account_balance
-                      : Icons.credit_card,
-                ),
-                title: Text(account.description ?? 'Sin descripción'),
-                subtitle: subtitle.isNotEmpty ? Text(subtitle) : null,
-                trailing: PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      _showAccountDialog(account: account);
-                    } else if (value == 'delete') {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('Eliminar cuenta'),
-                          content: const Text(
-                            '¿Estás seguro de eliminar esta cuenta?',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx),
-                              child: const Text('Cancelar'),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(ctx);
-                                _deleteAccount(account.id!);
-                              },
-                              child: const Text('Eliminar'),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(value: 'edit', child: Text('Editar')),
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: Text('Eliminar'),
+                  return ListTile(
+                    leading: Icon(
+                      account.type == 'cash'
+                          ? Icons.money
+                          : account.type == 'debit'
+                          ? Icons.account_balance
+                          : Icons.credit_card,
                     ),
-                  ],
-                ),
+                    title: Text(account.description ?? 'Sin descripción'),
+                    subtitle: subtitle.isNotEmpty ? Text(subtitle) : null,
+                    trailing: PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == 'edit') {
+                          _showAccountDialog(account: account);
+                        } else if (value == 'delete') {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Eliminar cuenta'),
+                              content: const Text(
+                                '¿Estás seguro de eliminar esta cuenta?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx),
+                                  child: const Text('Cancelar'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(ctx);
+                                    _deleteAccount(account.id!);
+                                  },
+                                  child: const Text('Eliminar'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: Text('Editar'),
+                        ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Text('Eliminar'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
+          ),
+        ),
+      ],
     );
   }
 }

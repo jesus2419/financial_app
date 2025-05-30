@@ -98,14 +98,17 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     return Scaffold(
-      appBar: _selectedIndex == 1 ? null : _buildAppBar(),
+      appBar: _selectedIndex == 1 || _selectedIndex == 3
+          ? null
+          : _buildAppBar(),
       drawer: MainDrawer(
         userName: widget.userName,
         totalBalance: _currencyFormat.format(_totalBalance),
         selectedIndex: _selectedIndex,
         onSectionTap: _onItemTapped,
       ),
-      body: _appSections[_selectedIndex],
+      //body: _appSections[_selectedIndex],
+      body: IndexedStack(index: _selectedIndex, children: _appSections),
       bottomNavigationBar: _buildBottomNavigationBar(),
       //floatingActionButton: _selectedIndex == 1 ? _buildAddTransactionButton() : null,
     );
