@@ -48,12 +48,10 @@ class _DashboardSectionState extends State<DashboardSection> {
               future: _accountsFuture,
               builder: (context, accSnap) {
                 final accounts = accSnap.data ?? [];
+                // Suma de todos los saldos de cuentas (igual que en transactions)
                 final totalBalance = accounts.fold<double>(
                   0.0,
-                  (sum, acc) =>
-                      sum +
-                      (acc.type == 'credit' ? (acc.creditLimit ?? 0) : 0) +
-                      (acc.type != 'credit' ? (acc.creditLimit ?? 0) + 0 : 0),
+                  (sum, acc) => sum + (acc.creditLimit ?? 0),
                 );
                 final efectivo = accounts
                     .where((a) => a.type == 'cash')
@@ -99,6 +97,15 @@ class _DashboardSectionState extends State<DashboardSection> {
                                   Text(
                                     currencyFormat.format(totalBalance),
                                     style: const TextStyle(fontSize: 22),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  // Mostrar desglose por tipo de cuenta
+                                  Text(
+                                    'Efectivo: ${currencyFormat.format(efectivo)}   Débito: ${currencyFormat.format(debito)}   Crédito: ${currencyFormat.format(credito)}',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
