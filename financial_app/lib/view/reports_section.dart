@@ -41,87 +41,103 @@ class _ReportsSectionState extends State<ReportsSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Reportes'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _refreshData,
-            tooltip: 'Refrescar datos',
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 16,
-              left: 16,
-              right: 16,
-              bottom: 0,
+    return Column(
+      children: [
+        AppBar(
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                // Abre el drawer del Scaffold ancestro
+                Scaffold.of(context).openDrawer();
+              },
+              tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
             ),
-            child: Row(
-              children: [
-                const Text(
-                  'Ver por:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          title: const Text('Reportes'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _refreshData,
+              tooltip: 'Refrescar datos',
+            ),
+          ],
+        ),
+        Expanded(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 16,
+                  left: 16,
+                  right: 16,
+                  bottom: 0,
                 ),
-                const SizedBox(width: 12),
-                DropdownButton<IncomeExpenseGroupBy>(
-                  value: _groupBy,
-                  items: const [
-                    DropdownMenuItem(
-                      value: IncomeExpenseGroupBy.day,
-                      child: Text('Día'),
+                child: Row(
+                  children: [
+                    const Text(
+                      'Ver por:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    DropdownMenuItem(
-                      value: IncomeExpenseGroupBy.week,
-                      child: Text('Semana'),
-                    ),
-                    DropdownMenuItem(
-                      value: IncomeExpenseGroupBy.month,
-                      child: Text('Mes'),
+                    const SizedBox(width: 12),
+                    DropdownButton<IncomeExpenseGroupBy>(
+                      value: _groupBy,
+                      items: const [
+                        DropdownMenuItem(
+                          value: IncomeExpenseGroupBy.day,
+                          child: Text('Día'),
+                        ),
+                        DropdownMenuItem(
+                          value: IncomeExpenseGroupBy.week,
+                          child: Text('Semana'),
+                        ),
+                        DropdownMenuItem(
+                          value: IncomeExpenseGroupBy.month,
+                          child: Text('Mes'),
+                        ),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) {
+                          setState(() => _groupBy = val);
+                          _refreshData();
+                        }
+                      },
                     ),
                   ],
-                  onChanged: (val) {
-                    if (val != null) {
-                      setState(() => _groupBy = val);
-                      _refreshData(); // Refrescar al cambiar el agrupamiento
-                    }
-                  },
                 ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: FutureBuilder<List<Category>>(
-              future: _categoriesFuture,
-              builder: (context, catSnap) {
-                if (!catSnap.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                return FutureBuilder<List<tx.Transaction>>(
-                  future: _transactionsFuture,
-                  builder: (context, txSnap) {
-                    if (!txSnap.hasData) {
+              ),
+              Expanded(
+                child: FutureBuilder<List<Category>>(
+                  future: _categoriesFuture,
+                  builder: (context, catSnap) {
+                    if (!catSnap.hasData) {
                       return const Center(child: CircularProgressIndicator());
                     }
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: IncomeVsExpenseChart(
-                        transactions: txSnap.data!,
-                        categories: catSnap.data!,
-                        groupBy: _groupBy,
-                      ),
+                    return FutureBuilder<List<tx.Transaction>>(
+                      future: _transactionsFuture,
+                      builder: (context, txSnap) {
+                        if (!txSnap.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: IncomeVsExpenseChart(
+                            transactions: txSnap.data!,
+                            categories: catSnap.data!,
+                            groupBy: _groupBy,
+                          ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

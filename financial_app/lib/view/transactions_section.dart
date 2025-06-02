@@ -153,8 +153,9 @@ class _TransactionsSectionState extends State<TransactionsSection> {
                   keyboardType: TextInputType.number,
                   validator: (val) {
                     if (val == null || val.isEmpty) return 'Campo requerido';
-                    if (double.tryParse(val) == null)
+                    if (double.tryParse(val) == null) {
                       return 'Ingrese un número válido';
+                    }
                     return null;
                   },
                   onChanged: (val) => amount = double.tryParse(val),

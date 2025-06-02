@@ -12,11 +12,11 @@ class IncomeVsExpenseChart extends StatelessWidget {
   final IncomeExpenseGroupBy groupBy;
 
   const IncomeVsExpenseChart({
-    Key? key,
+    super.key,
     required this.transactions,
     required this.categories,
     this.groupBy = IncomeExpenseGroupBy.month,
-  }) : super(key: key);
+  });
 
   String _groupKey(DateTime date) {
     switch (groupBy) {
@@ -187,8 +187,9 @@ class IncomeVsExpenseChart extends StatelessWidget {
                     showTitles: true,
                     getTitlesWidget: (double value, TitleMeta meta) {
                       final idx = value.toInt();
-                      if (idx < 0 || idx >= allGroups.length)
+                      if (idx < 0 || idx >= allGroups.length) {
                         return const SizedBox();
+                      }
                       final group = allGroups[idx];
                       return Padding(
                         padding: const EdgeInsets.only(top: 8.0),

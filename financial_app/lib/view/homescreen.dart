@@ -35,7 +35,7 @@ class _MainScreenState extends State<MainScreen> {
     const TransactionsSection(),
     const GoalsSection(),
     AccountsSection(key: _accountsKey),
-    const ReportsSection(),
+    const ReportsSection(), // Sin key
   ];
 
   void _onItemTapped(int index) {
@@ -57,38 +57,54 @@ class _MainScreenState extends State<MainScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     // AppBar dinámico según la sección seleccionada
-    if (_selectedIndex == 1) {
-      // Transacciones
-      return AppBar(
-        toolbarHeight: 0,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-      ); // AppBar vacío para cumplir con el tipo
-    }
-    if (_selectedIndex == 3) {
-      // Cuentas
-      return AppBar(
-        toolbarHeight: 0,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-      ); // AppBar vacío, lo maneja internamente AccountsSection
-    }
-    // AppBar por defecto
-    return AppBar(
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Hola, ${widget.userName}'),
-          Text(
-            DateFormat('EEEE, d MMMM', 'es').format(_currentDate),
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+    switch (_selectedIndex) {
+      case 1: // Transacciones
+        return AppBar(
+          toolbarHeight: 0,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+        );
+      case 3: // Cuentas
+        return AppBar(
+          toolbarHeight: 0,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+        );
+      case 4: // Reportes
+        return AppBar(
+          title: const Text('Reportes'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                // Necesitarías una forma de acceder al estado de ReportsSection
+                // Similar a como lo haces con AccountsSection
+                // Puedes usar un GlobalKey como con AccountsSection si necesitas refrescar
+              },
+              tooltip: 'Refrescar datos',
+            ),
+          ],
+        );
+      default: // AppBar por defecto (Dashboard, Goals)
+        return AppBar(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Hola, ${widget.userName}'),
+              Text(
+                DateFormat('EEEE, d MMMM', 'es').format(_currentDate),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      actions: [
-        IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
-      ],
-    );
+          actions: [
+            IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
+          ],
+        );
+    }
   }
 
   @override
@@ -98,7 +114,7 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     return Scaffold(
-      appBar: _selectedIndex == 1 || _selectedIndex == 3
+      appBar: _selectedIndex == 1 || _selectedIndex == 3 || _selectedIndex == 4
           ? null
           : _buildAppBar(),
       drawer: MainDrawer(
@@ -107,10 +123,8 @@ class _MainScreenState extends State<MainScreen> {
         selectedIndex: _selectedIndex,
         onSectionTap: _onItemTapped,
       ),
-      //body: _appSections[_selectedIndex],
       body: IndexedStack(index: _selectedIndex, children: _appSections),
       bottomNavigationBar: _buildBottomNavigationBar(),
-      //floatingActionButton: _selectedIndex == 1 ? _buildAddTransactionButton() : null,
     );
   }
 

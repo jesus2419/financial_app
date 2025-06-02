@@ -7,12 +7,12 @@ class MainDrawer extends StatelessWidget {
   final Function(int) onSectionTap;
 
   const MainDrawer({
-    Key? key,
+    super.key,
     required this.userName,
     required this.totalBalance,
     required this.selectedIndex,
     required this.onSectionTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
