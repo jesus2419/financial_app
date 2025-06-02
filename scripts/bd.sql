@@ -94,3 +94,16 @@ CREATE TABLE mandatory_payment_logs (
     FOREIGN KEY (mandatory_payment_id) REFERENCES mandatory_payments(id),
     FOREIGN KEY (transaction_id) REFERENCES transactions(id)
 );
+
+
+
+CREATE TABLE savings_goals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    target_amount REAL NOT NULL,
+    current_amount REAL DEFAULT 0,
+    deadline TEXT, -- opcional
+    description TEXT,
+    icon TEXT, -- opcional para UI
+    color TEXT -- opcional para UI
+);

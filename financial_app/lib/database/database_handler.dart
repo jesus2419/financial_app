@@ -8,6 +8,7 @@ import '../model/transaction.dart' as tx;
 import '../model/transfer.dart';
 import '../model/mandatory_payment.dart';
 import '../model/mandatory_payment_log.dart';
+import '../model/savings_goal.dart';
 
 class DatabaseHandler {
   static const _databaseName = "DB_super";
@@ -134,6 +135,20 @@ class DatabaseHandler {
         FOREIGN KEY (transaction_id) REFERENCES transactions(id)
       )
     ''');
+
+    // Tabla savings_goals (metas de ahorro)
+    await db.execute('''
+      CREATE TABLE savings_goals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        target_amount REAL NOT NULL,
+        current_amount REAL DEFAULT 0,
+        deadline TEXT,
+        description TEXT,
+        icon TEXT,
+        color TEXT
+      )
+    ''');
   }
 
   // Insertar usuario
@@ -227,7 +242,12 @@ class DatabaseHandler {
 
   Future<int> updateAccount(Account account) async {
     Database db = await instance.database;
-    return await db.update('accounts', account.toMap(), where: 'id = ?', whereArgs: [account.id]);
+    return await db.update(
+      'accounts',
+      account.toMap(),
+      where: 'id = ?',
+      whereArgs: [account.id],
+    );
   }
 
   Future<int> deleteAccount(int id) async {
@@ -275,11 +295,7 @@ class DatabaseHandler {
 
   Future<int> deleteTransaction(int id) async {
     Database db = await instance.database;
-    return await db.delete(
-      'transactions',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('transactions', where: 'id = ?', whereArgs: [id]);
   }
 
   // =========================
@@ -322,5 +338,34 @@ class DatabaseHandler {
     Database db = await instance.database;
     final maps = await db.query('mandatory_payment_logs');
     return maps.map((e) => MandatoryPaymentLog.fromMap(e)).toList();
+  }
+
+  // =========================
+  // Métodos para SavingsGoals
+  // =========================
+  Future<int> addSavingsGoal(SavingsGoal goal) async {
+    Database db = await instance.database;
+    return await db.insert('savings_goals', goal.toMap());
+  }
+
+  Future<List<SavingsGoal>> getAllSavingsGoals() async {
+    Database db = await instance.database;
+    final maps = await db.query('savings_goals');
+    return maps.map((e) => SavingsGoal.fromMap(e)).toList();
+  }
+
+  Future<int> updateSavingsGoal(SavingsGoal goal) async {
+    Database db = await instance.database;
+    return await db.update(
+      'savings_goals',
+      goal.toMap(),
+      where: 'id = ?',
+      whereArgs: [goal.id],
+    );
+  }
+
+  Future<int> deleteSavingsGoal(int id) async {
+    Database db = await instance.database;
+    return await db.delete('savings_goals', where: 'id = ?', whereArgs: [id]);
   }
 }
