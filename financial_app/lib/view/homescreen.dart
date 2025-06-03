@@ -109,7 +109,7 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
           actions: [
-            IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
+            //IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
           ],
         );
     }
