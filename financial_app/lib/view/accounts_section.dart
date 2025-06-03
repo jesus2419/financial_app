@@ -228,6 +228,22 @@ class AccountsSectionState extends State<AccountsSection> {
   }
 
   void _deleteAccount(int id) async {
+    // Validar si existen transacciones vinculadas a la cuenta
+    final transactions = await DatabaseHandler.instance.getAllTransactions();
+    final hasLinkedTransactions = transactions.any((t) => t.accountId == id);
+    if (hasLinkedTransactions) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'No puedes eliminar la cuenta porque tiene transacciones vinculadas.',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
     await DatabaseHandler.instance.deleteAccount(id);
     _refreshAccounts();
   }
