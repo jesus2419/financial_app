@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
             );
           } else {
             return snapshot.hasData && snapshot.data != null
-                ? HomeScreen(name: snapshot.data!)
+                ? MainScreen(userName: snapshot.data!) // Cambiado a MainScreen
                 : const WelcomeScreen();
           }
         },
@@ -109,7 +109,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomeScreen(name: _nameController.text),
+          builder: (context) => MainScreen(
+            userName: _nameController.text,
+          ), // Cambiado a MainScreen
         ),
       );
       setState(() => _isSubmitting = false);
