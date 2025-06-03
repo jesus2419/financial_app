@@ -85,8 +85,9 @@ class _GoalsSectionState extends State<GoalsSection> {
                   keyboardType: TextInputType.number,
                   validator: (val) {
                     if (val == null || val.isEmpty) return 'Campo requerido';
-                    if (double.tryParse(val) == null)
+                    if (double.tryParse(val) == null) {
                       return 'Ingrese un número válido';
+                    }
                     return null;
                   },
                   onChanged: (val) => targetAmount = double.tryParse(val),
@@ -216,84 +217,119 @@ class _GoalsSectionState extends State<GoalsSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Metas de Ahorro'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'Crear Meta',
-            onPressed: () => _showGoalDialog(),
+    return Column(
+      children: [
+        AppBar(
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+              tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+            ),
           ),
-        ],
-      ),
-      body: FutureBuilder<List<SavingsGoal>>(
-        future: _goalsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No hay metas registradas.'));
-          }
-          final goals = snapshot.data!;
-          return ListView.builder(
-            itemCount: goals.length,
-            itemBuilder: (context, index) {
-              final goal = goals[index];
-              final percent =
-                  (goal.currentAmount /
-                          (goal.targetAmount == 0 ? 1 : goal.targetAmount))
-                      .clamp(0.0, 1.0);
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: ListTile(
-                  onTap: () => _showGoalDetail(goal),
-                  leading: goal.icon != null
-                      ? Icon(
-                          _iconFromString(goal.icon!),
-                          color: goal.color != null
-                              ? _colorFromHex(goal.color!)
-                              : null,
-                        )
-                      : const Icon(Icons.savings),
-                  title: Text(goal.name),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          title: const Text('Metas de Ahorro'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.add),
+              tooltip: 'Crear Meta',
+              onPressed: () => _showGoalDialog(),
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                setState(() {
+                  _goalsFuture = DatabaseHandler.instance.getAllSavingsGoals();
+                });
+              },
+              tooltip: 'Refrescar metas',
+            ),
+          ],
+        ),
+        Expanded(
+          child: FutureBuilder<List<SavingsGoal>>(
+            future: _goalsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      LinearProgressIndicator(
-                        value: percent,
-                        minHeight: 8,
-                        backgroundColor: Colors.grey[200],
-                        color: goal.color != null
-                            ? _colorFromHex(goal.color!)
-                            : Colors.blue,
+                      const Text('No hay metas registradas.'),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () => _showGoalDialog(),
+                        child: const Text('Crear primera meta'),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '\$${goal.currentAmount.toStringAsFixed(2)} / \$${goal.targetAmount.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 13),
-                      ),
-                      if (goal.deadline != null)
-                        Text(
-                          'Fecha límite: ${goal.deadline}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
-                        ),
                     ],
                   ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () => _showGoalDialog(goal: goal),
-                  ),
-                ),
+                );
+              }
+              final goals = snapshot.data!;
+              return ListView.builder(
+                itemCount: goals.length,
+                itemBuilder: (context, index) {
+                  final goal = goals[index];
+                  final percent =
+                      (goal.currentAmount /
+                              (goal.targetAmount == 0 ? 1 : goal.targetAmount))
+                          .clamp(0.0, 1.0);
+                  return Card(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: ListTile(
+                      onTap: () => _showGoalDetail(goal),
+                      leading: goal.icon != null
+                          ? Icon(
+                              _iconFromString(goal.icon!),
+                              color: goal.color != null
+                                  ? _colorFromHex(goal.color!)
+                                  : null,
+                            )
+                          : const Icon(Icons.savings),
+                      title: Text(goal.name),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          LinearProgressIndicator(
+                            value: percent,
+                            minHeight: 8,
+                            backgroundColor: Colors.grey[200],
+                            color: goal.color != null
+                                ? _colorFromHex(goal.color!)
+                                : Colors.blue,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '\$${goal.currentAmount.toStringAsFixed(2)} / \$${goal.targetAmount.toStringAsFixed(2)}',
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                          if (goal.deadline != null)
+                            Text(
+                              'Fecha límite: ${goal.deadline}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                        ],
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => _showGoalDialog(goal: goal),
+                      ),
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -398,8 +434,9 @@ class _GoalDetailSheetState extends State<GoalDetailSheet> {
                 keyboardType: TextInputType.number,
                 validator: (val) {
                   if (val == null || val.isEmpty) return 'Campo requerido';
-                  if (double.tryParse(val) == null)
+                  if (double.tryParse(val) == null) {
                     return 'Ingrese un número válido';
+                  }
                   return null;
                 },
                 onChanged: (val) => amount = double.tryParse(val),

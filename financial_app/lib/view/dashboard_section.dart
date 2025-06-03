@@ -69,78 +69,129 @@ class _DashboardSectionState extends State<DashboardSection> {
                       future: _transactionsFuture,
                       builder: (context, txSnap) {
                         final txs = txSnap.data ?? [];
-                        final monthTxs = txs.where((t) {
-                          final d = DateTime.tryParse(t.date);
-                          return d != null &&
-                              d.month == today.month &&
-                              d.year == today.year;
-                        }).toList();
-                        final ingresos = monthTxs
-                            .where((t) => t.amount > 0)
-                            .fold<double>(0, (s, t) => s + t.amount);
-                        final gastos = monthTxs
-                            .where((t) => t.amount < 0)
-                            .fold<double>(0, (s, t) => s + t.amount);
-                        final rendimiento = ingresos + gastos;
-                        return Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Saldo total disponible',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    currencyFormat.format(totalBalance),
-                                    style: const TextStyle(fontSize: 22),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  // Mostrar desglose por tipo de cuenta
-                                  Text(
-                                    'Efectivo: ${currencyFormat.format(efectivo)}   Débito: ${currencyFormat.format(debito)}   Crédito: ${currencyFormat.format(credito)}',
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    'Rendimiento mensual: ${currencyFormat.format(rendimiento)}',
-                                    style: TextStyle(
-                                      color: rendimiento >= 0
-                                          ? Colors.green
-                                          : Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                        // Agrupa por cuenta y tipo usando las transacciones
+                        double efectivo = 0,
+                            debito = 0,
+                            credito = 0,
+                            totalBalance = 0;
+                        for (final t in txs) {
+                          // Busca la cuenta para saber el tipo
+                          // NOTA: Para eficiencia, deberías cachear las cuentas, pero aquí se hace simple
+                          // Si tienes muchas cuentas, puedes pasarlas por FutureBuilder o usar un Map
+                          // Aquí se asume que las cuentas ya están cargadas en accSnap
+                          final accounts = accSnap.data ?? [];
+                          final acc = accounts.firstWhere(
+                            (a) => a.id == t.accountId,
+                            orElse: () => Account(
+                              id: t.accountId,
+                              type: 'cash',
+                              creditLimit: 0,
                             ),
-                            // Icono de alerta si hay pagos obligatorios próximos o metas vencidas
-                            FutureBuilder<List<MandatoryPayment>>(
-                              future: _paymentsFuture,
-                              builder: (context, paySnap) {
-                                final pagos = paySnap.data ?? [];
-                                final pagosProximos = pagos.where((p) {
-                                  final due = DateTime.tryParse(p.dueDate);
-                                  return due != null &&
-                                      due.isAfter(today) &&
-                                      due.difference(today).inDays <= 7;
-                                }).toList();
-                                return pagosProximos.isNotEmpty
-                                    ? const Icon(
-                                        Icons.warning,
-                                        color: Colors.orange,
-                                        size: 32,
-                                      )
-                                    : const SizedBox.shrink();
-                              },
+                          );
+                          if (acc.type == 'cash') {
+                            efectivo += t.amount;
+                          } else if (acc.type == 'debit') {
+                            debito += t.amount;
+                          } else if (acc.type == 'credit') {
+                            credito += t.amount;
+                          }
+                          totalBalance += t.amount;
+                        }
+                        return Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Saldo total disponible',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        NumberFormat.currency(
+                                          symbol: '\$',
+                                        ).format(totalBalance),
+                                        style: const TextStyle(fontSize: 22),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      // Mostrar desglose por tipo de cuenta
+                                      Text(
+                                        'Efectivo: ${NumberFormat.currency(symbol: '\$').format(efectivo)}   Débito: ${NumberFormat.currency(symbol: '\$').format(debito)}   Crédito: ${NumberFormat.currency(symbol: '\$').format(credito)}',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      // Calcular rendimiento mensual (ingresos - egresos del mes actual)
+                                      Builder(
+                                        builder: (context) {
+                                          final now = DateTime.now();
+                                          final txsMes = txs.where((t) {
+                                            final date = DateTime.tryParse(
+                                              t.date,
+                                            );
+                                            return date != null &&
+                                                date.year == now.year &&
+                                                date.month == now.month;
+                                          }).toList();
+                                          final ingresos = txsMes
+                                              .where((t) => t.amount > 0)
+                                              .fold<double>(
+                                                0,
+                                                (s, t) => s + t.amount,
+                                              );
+                                          final egresos = txsMes
+                                              .where((t) => t.amount < 0)
+                                              .fold<double>(
+                                                0,
+                                                (s, t) => s + t.amount,
+                                              );
+                                          final rendimientoLocal =
+                                              ingresos + egresos;
+                                          return Text(
+                                            'Rendimiento mensual: ${currencyFormat.format(rendimientoLocal)}',
+                                            style: TextStyle(
+                                              color: rendimientoLocal >= 0
+                                                  ? Colors.green
+                                                  : Colors.red,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Icono de alerta si hay pagos obligatorios próximos o metas vencidas
+                                FutureBuilder<List<MandatoryPayment>>(
+                                  future: _paymentsFuture,
+                                  builder: (context, paySnap) {
+                                    final pagos = paySnap.data ?? [];
+                                    final pagosProximos = pagos.where((p) {
+                                      final due = DateTime.tryParse(p.dueDate);
+                                      return due != null &&
+                                          due.isAfter(today) &&
+                                          due.difference(today).inDays <= 7;
+                                    }).toList();
+                                    return pagosProximos.isNotEmpty
+                                        ? const Icon(
+                                            Icons.warning,
+                                            color: Colors.orange,
+                                            size: 32,
+                                          )
+                                        : const SizedBox.shrink();
+                                  },
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         );
                       },
                     ),
@@ -190,8 +241,9 @@ class _DashboardSectionState extends State<DashboardSection> {
                     FutureBuilder<List<Category>>(
                       future: _categoriesFuture,
                       builder: (context, catSnap) {
-                        if (!catSnap.hasData)
+                        if (!catSnap.hasData) {
                           return const SizedBox(height: 120);
+                        }
                         return SizedBox(
                           height: 180,
                           child: IncomeVsExpenseChart(
@@ -220,8 +272,9 @@ class _DashboardSectionState extends State<DashboardSection> {
                       future: _goalsFuture,
                       builder: (context, goalSnap) {
                         final goals = goalSnap.data ?? [];
-                        if (goals.isEmpty)
+                        if (goals.isEmpty) {
                           return const Text('Sin metas activas');
+                        }
                         return SizedBox(
                           height: 60,
                           child: ListView.separated(
@@ -319,8 +372,9 @@ class _DashboardSectionState extends State<DashboardSection> {
                         final txs = txSnap.data ?? [];
                         txs.sort((a, b) => b.date.compareTo(a.date));
                         final recent = txs.take(10).toList();
-                        if (recent.isEmpty)
+                        if (recent.isEmpty) {
                           return const Text('Sin movimientos recientes');
+                        }
                         return ListView.separated(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -385,8 +439,9 @@ class _DashboardSectionState extends State<DashboardSection> {
                       future: _goalsFuture,
                       builder: (context, goalSnap) {
                         final goals = goalSnap.data ?? [];
-                        if (goals.isEmpty)
+                        if (goals.isEmpty) {
                           return const Text('No hay metas activas');
+                        }
                         return ListView.separated(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -473,8 +528,9 @@ class _DashboardSectionState extends State<DashboardSection> {
                               ) &&
                               due.difference(today).inDays <= 7;
                         }).toList();
-                        if (proximos.isEmpty)
+                        if (proximos.isEmpty) {
                           return const Text('No hay pagos próximos');
+                        }
                         return ListView.separated(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),

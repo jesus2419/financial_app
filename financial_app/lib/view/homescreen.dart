@@ -64,6 +64,14 @@ class _MainScreenState extends State<MainScreen> {
           elevation: 0,
           backgroundColor: Colors.transparent,
         );
+
+      case 2: // Metas
+        return AppBar(
+          toolbarHeight: 0,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+        );
+
       case 3: // Cuentas
         return AppBar(
           toolbarHeight: 0,
