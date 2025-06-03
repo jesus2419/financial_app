@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../main.dart';
 
 class MainDrawer extends StatelessWidget {
   final String userName;
@@ -13,6 +15,19 @@ class MainDrawer extends StatelessWidget {
     required this.selectedIndex,
     required this.onSectionTap,
   });
+
+  Future<void> _logout(BuildContext context) async {
+    // 1. Eliminar los datos de sesión
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userName');
+
+    // 2. Navegar a MyApp (que manejará la redirección automática)
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const MyApp()),
+      (Route<dynamic> route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,12 +77,19 @@ class MainDrawer extends StatelessWidget {
             context,
             Icons.account_balance_wallet,
             'Mis Cuentas',
-            -1,
+            4,
           ),
           _buildDrawerItem(context, Icons.category, 'Categorías', -1),
           _buildDrawerItem(context, Icons.payment, 'Pagos Obligatorios', -1),
           const Divider(),
-          _buildDrawerItem(context, Icons.exit_to_app, 'Cerrar sesión', -1),
+          ListTile(
+            leading: const Icon(Icons.exit_to_app),
+            title: const Text('Cerrar sesión'),
+            onTap: () {
+              Navigator.pop(context); // Cerrar el drawer
+              _showLogoutConfirmationDialog(context);
+            },
+          ),
         ],
       ),
     );
@@ -88,7 +110,34 @@ class MainDrawer extends StatelessWidget {
         if (index >= 0) {
           onSectionTap(index);
         }
-        // Aquí deberías manejar la navegación para los ítems con index negativo
+      },
+    );
+  }
+
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Cerrar sesión'),
+          content: const Text('¿Estás seguro de que quieres cerrar sesión?'),
+          actions: [
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text(
+                'Cerrar sesión',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el diálogo
+                _logout(context); // Ejecutar el cierre de sesión
+              },
+            ),
+          ],
+        );
       },
     );
   }

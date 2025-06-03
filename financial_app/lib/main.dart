@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'view/home.dart'; // Asegúrate de que esta ruta sea correcta
-import 'view/homescreen.dart'; // Asegúrate de que esta ruta sea correcta
+import 'package:shared_preferences/shared_preferences.dart';
+import 'view/home.dart';
+import 'view/homescreen.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // Necesario para SystemChrome
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((
     _,
   ) {
@@ -36,8 +37,26 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const WelcomeScreen(),
+      home: FutureBuilder(
+        future: _checkUserSession(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          } else {
+            return snapshot.hasData && snapshot.data != null
+                ? HomeScreen(name: snapshot.data!)
+                : const WelcomeScreen();
+          }
+        },
+      ),
     );
+  }
+
+  static Future<String?> _checkUserSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userName');
   }
 }
 
@@ -74,14 +93,20 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     super.dispose();
   }
 
+  Future<void> _saveUserName(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userName', name);
+  }
+
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isSubmitting = true);
 
-      await Future.delayed(const Duration(seconds: 1));
+      // Guardar el nombre en SharedPreferences
+      await _saveUserName(_nameController.text);
 
       if (!mounted) return;
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => HomeScreen(name: _nameController.text),
@@ -145,7 +170,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               if (value == null || value.isEmpty) {
                                 return 'Por favor ingresa tu nombre';
                               }
-
                               return null;
                             },
                             textCapitalization: TextCapitalization.words,

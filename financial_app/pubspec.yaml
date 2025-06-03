@@ -16,6 +16,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   intl: ^0.18.1  # Agrega esta línea
   fl_chart: ^0.64.0
+  shared_preferences: ^2.2.2
+
 
 
 dev_dependencies:
