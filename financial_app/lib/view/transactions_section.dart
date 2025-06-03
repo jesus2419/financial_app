@@ -108,16 +108,27 @@ class _TransactionsSectionState extends State<TransactionsSection> {
   }
 
   Future<void> _showTransactionDialog({tx.Transaction? transaction}) async {
+    final accounts = await DatabaseHandler.instance.getAllAccounts();
+    if (accounts.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Debes crear al menos una cuenta antes de agregar una transacción.',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
     final formKey = GlobalKey<FormState>();
     int? accountId = transaction?.accountId;
     double? amount = transaction?.amount;
     int? categoryId = transaction?.categoryId;
     String? description = transaction?.description;
-    // Usa la fecha y hora actual al crear o editar
     DateTime dateTime = DateTime.now();
 
-    // Carga las cuentas y categorías actualizadas antes de mostrar el diálogo
-    final accounts = await DatabaseHandler.instance.getAllAccounts();
     final categories = await DatabaseHandler.instance.getAllCategories();
 
     await showDialog(

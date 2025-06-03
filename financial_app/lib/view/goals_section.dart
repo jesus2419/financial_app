@@ -28,6 +28,20 @@ class _GoalsSectionState extends State<GoalsSection> {
   }
 
   Future<void> _showGoalDialog({SavingsGoal? goal}) async {
+    final accounts = await DatabaseHandler.instance.getAllAccounts();
+    if (accounts.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Debes crear al menos una cuenta antes de crear una meta de ahorro.',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
     final formKey = GlobalKey<FormState>();
     String? name = goal?.name;
     double? targetAmount = goal?.targetAmount;
