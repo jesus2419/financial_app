@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
+import '../view/category_crud_screen.dart'; // Asegúrate de importar la pantalla de gestión de categorías
 
 class MainDrawer extends StatelessWidget {
   final String userName;
@@ -71,15 +72,27 @@ class MainDrawer extends StatelessWidget {
           _buildDrawerItem(context, Icons.dashboard, 'Dashboard', 0),
           _buildDrawerItem(context, Icons.list_alt, 'Transacciones', 1),
           _buildDrawerItem(context, Icons.savings, 'Metas de Ahorro', 2),
-          _buildDrawerItem(context, Icons.bar_chart, 'Reportes', 3),
+          _buildDrawerItem(context, Icons.bar_chart, 'Reportes', 4),
           const Divider(),
           _buildDrawerItem(
             context,
             Icons.account_balance_wallet,
             'Mis Cuentas',
-            4,
+            3,
           ),
-          _buildDrawerItem(context, Icons.category, 'Categorías', -1),
+          ListTile(
+            leading: const Icon(Icons.category),
+            title: const Text('Categorías'),
+            selected: false,
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const CategoryCrudScreen(),
+                ),
+              );
+            },
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.exit_to_app),
