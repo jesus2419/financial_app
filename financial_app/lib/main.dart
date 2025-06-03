@@ -131,13 +131,24 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(
-                      'assets/welcome.png',
-                      height: 180,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.emoji_emotions_outlined,
-                        size: 100,
-                        color: Colors.indigo,
+                    ClipOval(
+                      child: Container(
+                        width:
+                            180, // Mismo valor que el height para que sea perfectamente circular
+                        height: 180,
+                        color: Colors.indigo.withOpacity(
+                          0.1,
+                        ), // Color de fondo opcional
+                        child: Image.asset(
+                          'assets/icons/play_store_512.png',
+                          fit: BoxFit.cover, // Ajusta la imagen al círculo
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(
+                                Icons.emoji_emotions_outlined,
+                                size: 100,
+                                color: Colors.indigo,
+                              ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),

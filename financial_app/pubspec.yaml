@@ -34,12 +34,14 @@ dependency_overrides:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icons/play_store_512.png
 
 flutter_launcher_icons:
   android: "launcher_icon"  # Nombre personalizado (opcional)
   ios: true
   web:
     generate: true
-    image_path: "assets/icons/icona.png"  # Opcional (ícono específico para web)
-  image_path: "assets/icons/icona.png"
+    image_path: "assets/icons/play_store_512.png"  # Opcional (ícono específico para web)
+  image_path: "assets/icons/play_store_512.png"
   adaptive_icon_background: "#42a5f5"  # Fondo para ícono adaptable (Android)
