@@ -17,6 +17,8 @@ dependencies:
   intl: ^0.18.1  # Agrega esta línea
   fl_chart: ^0.64.0
   shared_preferences: ^2.2.2
+  flutter_launcher_icons: ^0.13.1
+
 
 
 
@@ -32,3 +34,12 @@ dependency_overrides:
 
 flutter:
   uses-material-design: true
+
+flutter_launcher_icons:
+  android: "launcher_icon"  # Nombre personalizado (opcional)
+  ios: true
+  web:
+    generate: true
+    image_path: "assets/icons/icona.png"  # Opcional (ícono específico para web)
+  image_path: "assets/icons/icona.png"
+  adaptive_icon_background: "#42a5f5"  # Fondo para ícono adaptable (Android)
