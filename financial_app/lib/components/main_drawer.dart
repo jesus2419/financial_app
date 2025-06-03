@@ -68,7 +68,7 @@ class MainDrawer extends StatelessWidget {
               ],
             ),
           ),
-          _buildDrawerItem(context, Icons.dashboard, 'Resumen', 0),
+          _buildDrawerItem(context, Icons.dashboard, 'Dashboard', 0),
           _buildDrawerItem(context, Icons.list_alt, 'Transacciones', 1),
           _buildDrawerItem(context, Icons.savings, 'Metas de Ahorro', 2),
           _buildDrawerItem(context, Icons.bar_chart, 'Reportes', 3),
@@ -80,7 +80,6 @@ class MainDrawer extends StatelessWidget {
             4,
           ),
           _buildDrawerItem(context, Icons.category, 'Categorías', -1),
-          _buildDrawerItem(context, Icons.payment, 'Pagos Obligatorios', -1),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.exit_to_app),
