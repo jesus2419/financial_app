@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'view/home.dart'; // Asegúrate de que esta ruta sea correcta
+import 'view/homescreen.dart'; // Asegúrate de que esta ruta sea correcta
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized(); // Necesario para SystemChrome
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-    .then((_) {
-      runApp(const MyApp());
-    });
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((
+    _,
+  ) {
+    runApp(const MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -28,7 +30,10 @@ class MyApp extends StatelessWidget {
           ),
           filled: true,
           fillColor: Colors.grey.withOpacity(0.1),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 16,
+          ),
         ),
       ),
       home: const WelcomeScreen(),
@@ -43,7 +48,8 @@ class WelcomeScreen extends StatefulWidget {
   State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProviderStateMixin {
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   final _formKey = GlobalKey<FormState>();
@@ -57,10 +63,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _controller.forward();
   }
 
@@ -74,9 +77,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isSubmitting = true);
-      
+
       await Future.delayed(const Duration(seconds: 1));
-      
+
       if (!mounted) return;
       Navigator.push(
         context,
@@ -104,8 +107,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                     Image.asset(
                       'assets/welcome.png',
                       height: 180,
-                      errorBuilder: (context, error, stackTrace) => 
-                        const Icon(Icons.emoji_emotions_outlined, size: 100, color: Colors.indigo),
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.emoji_emotions_outlined,
+                        size: 100,
+                        color: Colors.indigo,
+                      ),
                     ),
                     const SizedBox(height: 32),
                     const Text(
@@ -119,10 +125,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                     const SizedBox(height: 8),
                     Text(
                       'Por favor ingresa tu nombre para comenzar',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 32),
@@ -142,7 +145,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                               if (value == null || value.isEmpty) {
                                 return 'Por favor ingresa tu nombre';
                               }
-            
+
                               return null;
                             },
                             textCapitalization: TextCapitalization.words,
@@ -154,7 +157,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                             child: ElevatedButton(
                               onPressed: _isSubmitting ? null : _submit,
                               style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),

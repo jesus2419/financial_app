@@ -207,55 +207,6 @@ class _DashboardSectionState extends State<DashboardSection> {
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   children: [
-                    // Gastos por categoría (donut)
-                    Row(
-                      children: [
-                        const Text(
-                          'Gastos por categoría',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const Spacer(),
-                        Icon(Icons.pie_chart, color: Colors.indigo[400]),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    // TODO: Implementar gráfico de pastel real
-                    Container(
-                      height: 120,
-                      alignment: Alignment.center,
-                      child: const Text('Gráfico de pastel aquí'),
-                    ),
-                    const Divider(),
-                    // Ingresos vs Gastos (barras)
-                    Row(
-                      children: [
-                        const Text(
-                          'Ingresos vs Gastos',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const Spacer(),
-                        Icon(Icons.bar_chart, color: Colors.indigo[400]),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    FutureBuilder<List<Category>>(
-                      future: _categoriesFuture,
-                      builder: (context, catSnap) {
-                        if (!catSnap.hasData) {
-                          return const SizedBox(height: 120);
-                        }
-                        return SizedBox(
-                          height: 180,
-                          child: IncomeVsExpenseChart(
-                            categories: catSnap.data!,
-                            transactions:
-                                [], // TODO: Provide the actual transactions list here
-                            groupBy: IncomeExpenseGroupBy.month,
-                          ),
-                        );
-                      },
-                    ),
-                    const Divider(),
                     // Progreso de metas de ahorro (circular)
                     Row(
                       children: [
@@ -325,28 +276,6 @@ class _DashboardSectionState extends State<DashboardSection> {
                           ),
                         );
                       },
-                    ),
-                    const Divider(),
-                    // Distribución por cuentas (pie chart opcional)
-                    Row(
-                      children: [
-                        const Text(
-                          'Distribución por cuentas',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const Spacer(),
-                        Icon(
-                          Icons.pie_chart_outline,
-                          color: Colors.indigo[400],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    // TODO: Implementar gráfico de pastel real
-                    Container(
-                      height: 80,
-                      alignment: Alignment.center,
-                      child: const Text('Pie chart de cuentas aquí'),
                     ),
                   ],
                 ),
