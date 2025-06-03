@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart'; // <-- Importa sqflite para borrar la base
 import '../main.dart';
 import '../view/category_crud_screen.dart'; // Asegúrate de importar la pantalla de gestión de categorías
 
@@ -22,7 +23,12 @@ class MainDrawer extends StatelessWidget {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('userName');
 
-    // 2. Navegar a MyApp (que manejará la redirección automática)
+    // 2. Eliminar la base de datos SQLite
+    final dbPath = await getDatabasesPath();
+    final dbFile = '$dbPath/DB_super';
+    await deleteDatabase(dbFile);
+
+    // 3. Navegar a MyApp (que manejará la redirección automática)
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const MyApp()),
