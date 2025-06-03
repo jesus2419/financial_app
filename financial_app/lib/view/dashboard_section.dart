@@ -7,6 +7,7 @@ import '../model/category.dart';
 import '../model/savings_goal.dart';
 import '../model/mandatory_payment.dart';
 import '../components/income_vs_expense_chart.dart';
+import 'goals_section.dart';
 
 class DashboardSection extends StatefulWidget {
   const DashboardSection({super.key});
@@ -227,7 +228,7 @@ class _DashboardSectionState extends State<DashboardSection> {
                           return const Text('Sin metas activas');
                         }
                         return SizedBox(
-                          height: 60,
+                          height: 80, // Aumenta el alto para evitar overflow
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: goals.length,
@@ -242,6 +243,7 @@ class _DashboardSectionState extends State<DashboardSection> {
                                               : g.targetAmount))
                                       .clamp(0.0, 1.0);
                               return Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Stack(
                                     alignment: Alignment.center,
@@ -265,10 +267,16 @@ class _DashboardSectionState extends State<DashboardSection> {
                                     ],
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(
-                                    g.name,
-                                    style: const TextStyle(fontSize: 11),
-                                    overflow: TextOverflow.ellipsis,
+                                  SizedBox(
+                                    width:
+                                        60, // Limita el ancho del texto para evitar overflow
+                                    child: Text(
+                                      g.name,
+                                      style: const TextStyle(fontSize: 11),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
                                 ],
                               );
@@ -419,6 +427,13 @@ class _DashboardSectionState extends State<DashboardSection> {
                                 icon: const Icon(Icons.add),
                                 tooltip: 'Aportar',
                                 onPressed: () {
+                                  // Navegar a la pantalla de metas
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const GoalsSection(),
+                                    ),
+                                  );
                                   // Aquí podrías abrir el diálogo de aporte rápido
                                 },
                               ),
