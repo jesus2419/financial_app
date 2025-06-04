@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../database/database_handler.dart';
 import '../model/account.dart';
+import '../model/transaction.dart' as tx;
 
 class AccountsSection extends StatefulWidget {
   const AccountsSection({super.key});
@@ -250,6 +251,14 @@ class AccountsSectionState extends State<AccountsSection> {
     _refreshAccounts();
   }
 
+  void _showAccountDetailSheet(Account account) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => AccountDetailSheet(account: account),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -287,15 +296,9 @@ class AccountsSectionState extends State<AccountsSection> {
                 itemBuilder: (context, index) {
                   final account = accounts[index];
                   String subtitle = '';
-                  // Solo mostrar info de banco para débito
                   if (account.type == 'debit') {
                     subtitle = 'Banco: ${account.bankName ?? ''}';
                   }
-                  // Eliminar info de crédito
-                  // if (account.type == 'credit') {
-                  //   subtitle =
-                  //       'Banco: ${account.bankName ?? ''} | Límite: \$${account.creditLimit?.toStringAsFixed(2) ?? '-'}';
-                  // }
                   return ListTile(
                     leading: Icon(
                       account.type == 'cash'
@@ -344,6 +347,7 @@ class AccountsSectionState extends State<AccountsSection> {
                         ),
                       ],
                     ),
+                    onTap: () => _showAccountDetailSheet(account),
                   );
                 },
               );
@@ -351,6 +355,122 @@ class AccountsSectionState extends State<AccountsSection> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class AccountDetailSheet extends StatefulWidget {
+  final Account account;
+  const AccountDetailSheet({required this.account, Key? key}) : super(key: key);
+
+  @override
+  State<AccountDetailSheet> createState() => _AccountDetailSheetState();
+}
+
+class _AccountDetailSheetState extends State<AccountDetailSheet> {
+  late Future<List<tx.Transaction>> _transactionsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _transactionsFuture = DatabaseHandler.instance.getAllTransactions();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.7,
+      minChildSize: 0.4,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) =>
+          FutureBuilder<List<tx.Transaction>>(
+            future: _transactionsFuture,
+            builder: (context, snapshot) {
+              final txs =
+                  snapshot.data
+                      ?.where((t) => t.accountId == widget.account.id)
+                      .toList() ??
+                  [];
+              final balance = txs.fold<double>(0, (sum, t) => sum + t.amount);
+              return SingleChildScrollView(
+                controller: scrollController,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        widget.account.description ?? 'Cuenta',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Saldo: \$${balance.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.indigo,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Transacciones: ${txs.length}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Divider(),
+                      const Text(
+                        'Movimientos',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      if (snapshot.connectionState == ConnectionState.waiting)
+                        const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      else if (txs.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text('No hay transacciones para esta cuenta.'),
+                        )
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: txs.length,
+                          itemBuilder: (context, index) {
+                            final t = txs[index];
+                            final isIngreso = t.amount > 0;
+                            return ListTile(
+                              leading: Icon(
+                                isIngreso
+                                    ? Icons.arrow_downward
+                                    : Icons.arrow_upward,
+                                color: isIngreso ? Colors.green : Colors.red,
+                              ),
+                              title: Text(t.description ?? ''),
+                              subtitle: Text(t.date),
+                              trailing: Text(
+                                '\$${t.amount.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  color: isIngreso ? Colors.green : Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
     );
   }
 }

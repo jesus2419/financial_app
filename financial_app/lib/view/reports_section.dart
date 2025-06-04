@@ -219,7 +219,8 @@ class _ReportsSectionState extends State<ReportsSection> {
                                       ),
                                       const SizedBox(height: 8),
                                       SizedBox(
-                                        height: 180,
+                                        height:
+                                            200, // Aumenta el alto para evitar overflow
                                         child: PieChart(
                                           PieChartData(
                                             sections: pieSections,
@@ -313,7 +314,8 @@ class _ReportsSectionState extends State<ReportsSection> {
                                           );
                                         }
                                         return SizedBox(
-                                          height: 60,
+                                          height:
+                                              80, // Aumenta el alto para evitar overflow
                                           child: ListView.separated(
                                             scrollDirection: Axis.horizontal,
                                             itemCount: goals.length,
@@ -328,6 +330,8 @@ class _ReportsSectionState extends State<ReportsSection> {
                                                               : g.targetAmount))
                                                       .clamp(0.0, 1.0);
                                               return Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
                                                 children: [
                                                   Stack(
                                                     alignment: Alignment.center,
@@ -356,13 +360,19 @@ class _ReportsSectionState extends State<ReportsSection> {
                                                     ],
                                                   ),
                                                   const SizedBox(height: 4),
-                                                  Text(
-                                                    g.name,
-                                                    style: const TextStyle(
-                                                      fontSize: 11,
+                                                  SizedBox(
+                                                    width: 60,
+                                                    child: Text(
+                                                      g.name,
+                                                      style: const TextStyle(
+                                                        fontSize: 11,
+                                                      ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                      textAlign:
+                                                          TextAlign.center,
                                                     ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
                                                   ),
                                                 ],
                                               );
