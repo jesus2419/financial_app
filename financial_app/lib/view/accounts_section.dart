@@ -56,10 +56,11 @@ class AccountsSectionState extends State<AccountsSection> {
                             value: 'debit',
                             child: Text('Débito'),
                           ),
-                          DropdownMenuItem(
-                            value: 'credit',
-                            child: Text('Crédito'),
-                          ),
+                          // Eliminada la opción de crédito
+                          // DropdownMenuItem(
+                          //   value: 'credit',
+                          //   child: Text('Crédito'),
+                          // ),
                         ],
                         onChanged: (val) {
                           setDialogState(() {
@@ -70,12 +71,12 @@ class AccountsSectionState extends State<AccountsSection> {
                           labelText: 'Tipo de cuenta',
                         ),
                       ),
-                      if (type == 'debit' || type == 'credit')
+                      if (type == 'debit')
                         TextFormField(
                           initialValue: bankName,
                           decoration: const InputDecoration(labelText: 'Banco'),
                           validator: (val) {
-                            if ((type == 'debit' || type == 'credit') &&
+                            if ((type == 'debit') &&
                                 (val == null || val.isEmpty)) {
                               return 'El banco es obligatorio';
                             }
@@ -96,46 +97,47 @@ class AccountsSectionState extends State<AccountsSection> {
                         },
                         onChanged: (val) => description = val,
                       ),
-                      if (type == 'credit')
-                        TextFormField(
-                          initialValue: creditLimitStr,
-                          decoration: const InputDecoration(
-                            labelText: 'Límite de crédito',
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (val) {
-                            if (type == 'credit' &&
-                                (val == null || val.isEmpty)) {
-                              return 'El límite de crédito es obligatorio';
-                            }
-                            if (type == 'credit' &&
-                                double.tryParse(val!) == null) {
-                              return 'Ingrese un número válido';
-                            }
-                            return null;
-                          },
-                          onChanged: (val) => creditLimitStr = val,
-                        ),
-                      if (type == 'credit')
-                        TextFormField(
-                          initialValue: cutOffDayStr,
-                          decoration: const InputDecoration(
-                            labelText: 'Día de corte',
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (val) {
-                            if (type == 'credit' &&
-                                (val == null || val.isEmpty)) {
-                              return 'El día de corte es obligatorio';
-                            }
-                            if (type == 'credit' &&
-                                int.tryParse(val!) == null) {
-                              return 'Ingrese un número válido';
-                            }
-                            return null;
-                          },
-                          onChanged: (val) => cutOffDayStr = val,
-                        ),
+                      // Eliminados los campos de crédito
+                      // if (type == 'credit')
+                      //   TextFormField(
+                      //     initialValue: creditLimitStr,
+                      //     decoration: const InputDecoration(
+                      //       labelText: 'Límite de crédito',
+                      //     ),
+                      //     keyboardType: TextInputType.number,
+                      //     validator: (val) {
+                      //       if (type == 'credit' &&
+                      //           (val == null || val.isEmpty)) {
+                      //         return 'El límite de crédito es obligatorio';
+                      //       }
+                      //       if (type == 'credit' &&
+                      //           double.tryParse(val!) == null) {
+                      //         return 'Ingrese un número válido';
+                      //       }
+                      //       return null;
+                      //     },
+                      //     onChanged: (val) => creditLimitStr = val,
+                      //   ),
+                      // if (type == 'credit')
+                      //   TextFormField(
+                      //     initialValue: cutOffDayStr,
+                      //     decoration: const InputDecoration(
+                      //       labelText: 'Día de corte',
+                      //     ),
+                      //     keyboardType: TextInputType.number,
+                      //     validator: (val) {
+                      //       if (type == 'credit' &&
+                      //           (val == null || val.isEmpty)) {
+                      //         return 'El día de corte es obligatorio';
+                      //       }
+                      //       if (type == 'credit' &&
+                      //           int.tryParse(val!) == null) {
+                      //         return 'Ingrese un número válido';
+                      //       }
+                      //       return null;
+                      //     },
+                      //     onChanged: (val) => cutOffDayStr = val,
+                      //   ),
                     ],
                   ),
                 ),
@@ -285,20 +287,20 @@ class AccountsSectionState extends State<AccountsSection> {
                 itemBuilder: (context, index) {
                   final account = accounts[index];
                   String subtitle = '';
-                  if (account.type == 'credit') {
-                    subtitle =
-                        'Banco: ${account.bankName ?? ''} | Límite: \$${account.creditLimit?.toStringAsFixed(2) ?? '-'}';
-                  } else if (account.type == 'debit') {
+                  // Solo mostrar info de banco para débito
+                  if (account.type == 'debit') {
                     subtitle = 'Banco: ${account.bankName ?? ''}';
                   }
-
+                  // Eliminar info de crédito
+                  // if (account.type == 'credit') {
+                  //   subtitle =
+                  //       'Banco: ${account.bankName ?? ''} | Límite: \$${account.creditLimit?.toStringAsFixed(2) ?? '-'}';
+                  // }
                   return ListTile(
                     leading: Icon(
                       account.type == 'cash'
                           ? Icons.money
-                          : account.type == 'debit'
-                          ? Icons.account_balance
-                          : Icons.credit_card,
+                          : Icons.account_balance,
                     ),
                     title: Text(account.description ?? 'Sin descripción'),
                     subtitle: subtitle.isNotEmpty ? Text(subtitle) : null,

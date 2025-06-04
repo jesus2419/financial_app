@@ -4,6 +4,7 @@ import '../database/database_handler.dart';
 import '../model/transaction.dart' as tx;
 import '../model/category.dart';
 import '../model/account.dart';
+import 'category_crud_screen.dart';
 
 class TransactionsSection extends StatefulWidget {
   const TransactionsSection({super.key});
@@ -304,8 +305,14 @@ class _TransactionsSectionState extends State<TransactionsSection> {
             ),
             IconButton(
               icon: const Icon(Icons.category),
-              tooltip: 'Agregar Categoría',
-              onPressed: _showCategoryDialog,
+              tooltip: 'Gestionar Categorías',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CategoryCrudScreen(),
+                  ),
+                );
+              },
             ),
             IconButton(
               icon: const Icon(Icons.refresh),

@@ -71,7 +71,7 @@ class _CategoryCrudScreenState extends State<CategoryCrudScreen> {
                 if (category == null) {
                   await db.addCategory(Category(name: name!, type: type));
                 } else {
-                  await db.addCategory(
+                  await db.updateCategory(
                     Category(
                       id: category.id,
                       name: name!,
@@ -94,9 +94,7 @@ class _CategoryCrudScreenState extends State<CategoryCrudScreen> {
 
   Future<void> _deleteCategory(int id) async {
     final db = DatabaseHandler.instance;
-    // No hay método deleteCategory, así que puedes agregarlo si lo necesitas
-    // await db.deleteCategory(id);
-    // Por ahora solo refresca
+    await db.deleteCategory(id);
     _refreshCategories();
   }
 
