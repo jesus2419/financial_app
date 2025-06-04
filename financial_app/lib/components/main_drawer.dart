@@ -133,7 +133,9 @@ class MainDrawer extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Cerrar sesión'),
-          content: const Text('¿Estás seguro de que quieres cerrar sesión?'),
+          content: const Text(
+            '¿Estás seguro de que quieres cerrar sesión? Se borrarán todos los datos de la sesión actual.',
+          ),
           actions: [
             TextButton(
               child: const Text('Cancelar'),

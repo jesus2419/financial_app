@@ -121,6 +121,7 @@ class _DashboardSectionState extends State<DashboardSection> {
                                         style: const TextStyle(fontSize: 22),
                                       ),
                                       const SizedBox(height: 6),
+                                      /*
                                       // Mostrar desglose por tipo de cuenta
                                       Text(
                                         'Efectivo: ${NumberFormat.currency(symbol: '\$').format(efectivo)}   Débito: ${NumberFormat.currency(symbol: '\$').format(debito)}   Crédito: ${NumberFormat.currency(symbol: '\$').format(credito)}',
@@ -167,6 +168,7 @@ class _DashboardSectionState extends State<DashboardSection> {
                                           );
                                         },
                                       ),
+                                      */
                                     ],
                                   ),
                                 ),
