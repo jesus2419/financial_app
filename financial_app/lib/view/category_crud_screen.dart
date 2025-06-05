@@ -3,7 +3,7 @@ import '../database/database_handler.dart';
 import '../model/category.dart';
 
 class CategoryCrudScreen extends StatefulWidget {
-  const CategoryCrudScreen({Key? key}) : super(key: key);
+  const CategoryCrudScreen({super.key});
 
   @override
   State<CategoryCrudScreen> createState() => _CategoryCrudScreenState();

@@ -159,13 +159,13 @@ class AccountsSectionState extends State<AccountsSection> {
                             : null,
                         creditLimit: type == 'credit'
                             ? (creditLimitStr != null &&
-                                      creditLimitStr!.isNotEmpty
-                                  ? double.parse(creditLimitStr!)
+                                      creditLimitStr.isNotEmpty
+                                  ? double.parse(creditLimitStr)
                                   : null)
                             : null,
                         cutOffDay: type == 'credit'
-                            ? (cutOffDayStr != null && cutOffDayStr!.isNotEmpty
-                                  ? int.parse(cutOffDayStr!)
+                            ? (cutOffDayStr != null && cutOffDayStr.isNotEmpty
+                                  ? int.parse(cutOffDayStr)
                                   : null)
                             : null,
                         description: description,
@@ -361,7 +361,7 @@ class AccountsSectionState extends State<AccountsSection> {
 
 class AccountDetailSheet extends StatefulWidget {
   final Account account;
-  const AccountDetailSheet({required this.account, Key? key}) : super(key: key);
+  const AccountDetailSheet({required this.account, super.key});
 
   @override
   State<AccountDetailSheet> createState() => _AccountDetailSheetState();

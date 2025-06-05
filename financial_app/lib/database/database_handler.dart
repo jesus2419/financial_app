@@ -27,11 +27,11 @@ class DatabaseHandler {
   DatabaseHandler._privateConstructor();
   static final DatabaseHandler instance = DatabaseHandler._privateConstructor();
 
-  static Database? _database;
+  static Database? databaseInstance; // <-- Cambia el nombre a databaseInstance
   Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDatabase();
-    return _database!;
+    if (databaseInstance != null) return databaseInstance!;
+    databaseInstance = await _initDatabase();
+    return databaseInstance!;
   }
 
   _initDatabase() async {

@@ -6,8 +6,6 @@ import '../model/transaction.dart' as tx;
 import '../model/category.dart';
 import '../model/savings_goal.dart';
 import '../model/mandatory_payment.dart';
-import '../components/income_vs_expense_chart.dart';
-import 'goals_section.dart';
 
 class DashboardSection extends StatefulWidget {
   const DashboardSection({super.key});

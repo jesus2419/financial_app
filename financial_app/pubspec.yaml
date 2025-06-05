@@ -20,6 +20,8 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   image_picker: ^1.0.7
   showcaseview: ^2.0.0  
+  path_provider: ^2.1.2 # Usa la última versión disponible
+
 
 
 

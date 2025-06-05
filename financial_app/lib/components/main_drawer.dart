@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:path_provider/path_provider.dart';
 import '../main.dart';
 import '../view/category_crud_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../database/database_handler.dart';
 
 class MainDrawer extends StatefulWidget {
   final String userName;
@@ -56,7 +58,9 @@ class _MainDrawerState extends State<MainDrawer> {
               GestureDetector(
                 onTap: () async {
                   final picker = ImagePicker();
-                  final picked = await picker.pickImage(source: ImageSource.gallery);
+                  final picked = await picker.pickImage(
+                    source: ImageSource.gallery,
+                  );
                   if (picked != null) {
                     tempImagePath = picked.path;
                     setState(() {
@@ -67,7 +71,9 @@ class _MainDrawerState extends State<MainDrawer> {
                 child: CircleAvatar(
                   radius: 36,
                   backgroundColor: Colors.grey[200],
-                  backgroundImage: tempImagePath != null ? FileImage(File(tempImagePath!)) : null,
+                  backgroundImage: tempImagePath != null
+                      ? FileImage(File(tempImagePath!))
+                      : null,
                   child: tempImagePath == null
                       ? const Icon(Icons.person, size: 40, color: Colors.indigo)
                       : null,
@@ -108,12 +114,35 @@ class _MainDrawerState extends State<MainDrawer> {
   }
 
   Future<void> _logout(BuildContext context) async {
+    // Elimina SharedPreferences
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('userName');
-    await prefs.remove('userImagePath');
+    await prefs.clear();
+
+    // Cierra y elimina base de datos
+    try {
+      if (DatabaseHandler.databaseInstance != null) {
+        await DatabaseHandler.databaseInstance!.close();
+        DatabaseHandler.databaseInstance = null;
+      }
+    } catch (_) {
+      // Ignora errores de cierre
+    }
     final dbPath = await getDatabasesPath();
     final dbFile = '$dbPath/DB_super';
     await deleteDatabase(dbFile);
+
+    // Elimina caché
+    final cacheDir = await getTemporaryDirectory();
+    if (cacheDir.existsSync()) {
+      cacheDir.deleteSync(recursive: true);
+    }
+
+    // Opcional: elimina archivos de app support (más limpieza)
+    final appSupportDir = await getApplicationSupportDirectory();
+    if (appSupportDir.existsSync()) {
+      appSupportDir.deleteSync(recursive: true);
+    }
+
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const MyApp()),
@@ -147,7 +176,11 @@ class _MainDrawerState extends State<MainDrawer> {
                         ? FileImage(File(_userImagePath!))
                         : null,
                     child: _userImagePath == null
-                        ? const Icon(Icons.person, size: 40, color: Colors.indigo)
+                        ? const Icon(
+                            Icons.person,
+                            size: 40,
+                            color: Colors.indigo,
+                          )
                         : null,
                   ),
                 ),
@@ -166,7 +199,11 @@ class _MainDrawerState extends State<MainDrawer> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.white, size: 20),
+                      icon: const Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                       tooltip: 'Editar perfil',
                       onPressed: _editUserInfo,
                     ),
