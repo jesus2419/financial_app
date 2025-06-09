@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'view/homescreen.dart';
+import 'onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,15 +38,20 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: FutureBuilder(
-        future: _checkUserSession(),
+        future: _checkOnboardingAndSession(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           } else {
-            return snapshot.hasData && snapshot.data != null
-                ? MainScreen(userName: snapshot.data!) // Cambiado a MainScreen
+            final data = snapshot.data as Map<String, dynamic>? ?? {};
+            if (data['showOnboarding'] == true) {
+              return const OnboardingScreen();
+            }
+            final userName = data['userName'];
+            return userName != null
+                ? MainScreen(userName: userName)
                 : const WelcomeScreen();
           }
         },
@@ -53,9 +59,11 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  static Future<String?> _checkUserSession() async {
+  static Future<Map<String, dynamic>> _checkOnboardingAndSession() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('userName');
+    final showOnboarding = !(prefs.getBool('onboardingSeen') ?? false);
+    final userName = prefs.getString('userName');
+    return {'showOnboarding': showOnboarding, 'userName': userName};
   }
 }
 
