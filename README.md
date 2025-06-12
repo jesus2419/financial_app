@@ -1,8 +1,5 @@
 # 💰 neneros - Gestor Inteligente de Finanzas
 
-<div align="center">
-  <img src="https://via.placeholder.com/800x400/4285F4/FFFFFF?text=Finanzly+App+Preview" alt="Banner Finanzly">
-</div>
 
 
 
